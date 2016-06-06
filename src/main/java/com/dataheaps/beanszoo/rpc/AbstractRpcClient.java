@@ -2,7 +2,6 @@ package com.dataheaps.beanszoo.rpc;
 
 import com.dataheaps.beanszoo.codecs.RPCRequestCodec;
 import lombok.RequiredArgsConstructor;
-import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
 import java.util.Map;
@@ -25,7 +24,6 @@ public abstract class AbstractRpcClient<S> implements RpcClient {
 
     final RPCRequestCodec codec;
     final int timeout;
-    Map<String, Session> sessions = new ConcurrentHashMap<>();
     Map<Long,RpcSync> events = new ConcurrentHashMap<>();
     AtomicLong idGen = new AtomicLong(0);
 
