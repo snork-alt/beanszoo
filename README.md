@@ -48,32 +48,32 @@ On the server side we create a Service directory, an RPC Server and expose a new
 of the SampleService class:
 
 ```java
-    SocketRpcServerAddress addr = new SocketRpcServerAddress("localhost", 8050);
-    ZookeperServiceDirectory sd = new ZookeperServiceDirectory("localhost:2181", addr);
+SocketRpcServerAddress addr = new SocketRpcServerAddress("localhost", 8050);
+ZookeperServiceDirectory sd = new ZookeperServiceDirectory("localhost:2181", addr);
 
-    List<RPCRequestCodec> codecs = new ArrayList<>();
-    codecs.add(new YamlRPCRequestCodec());
-    codecs.add(new NativeRPCRequestCodec());
-    SocketRpcServer server = new SocketRpcServer(addr, codecs, new ServiceDirectoryRPCRequestHandler(sd));
+List<RPCRequestCodec> codecs = new ArrayList<>();
+codecs.add(new YamlRPCRequestCodec());
+codecs.add(new NativeRPCRequestCodec());
+SocketRpcServer server = new SocketRpcServer(addr, codecs, new ServiceDirectoryRPCRequestHandler(sd));
 
-    sd.putService("SampleService", new SampleService("SampleService"));
-    server.start();
-    sd.start();
+sd.putService("SampleService", new SampleService("SampleService"));
+server.start();
+sd.start();
 ```
 
 On the client side we can simply invoke the instantiated object with the following code:
 
 ```java
 
-    RemoteServiceDirectory sd = new ZookeperServiceDirectory("localhost:2181");
-    sd.start();
+RemoteServiceDirectory sd = new ZookeperServiceDirectory("localhost:2181");
+sd.start();
 
-    RpcClient cli = new SocketRpcClient(new YamlRPCRequestCodec(), 10000);
-    Services services = new Services(cli, sd);
+RpcClient cli = new SocketRpcClient(new YamlRPCRequestCodec(), 10000);
+Services services = new Services(cli, sd);
 
-    ISmapleService svc = (ISmapleService) services.getServiceByType(ISmapleService.class, "example");
+ISmapleService svc = (ISmapleService) services.getServiceByType(ISmapleService.class, "example");
 
-    svc.sayHello("Matteo")
+svc.sayHello("Matteo")
 
 ```
 
