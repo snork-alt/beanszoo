@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,6 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by matteopelati on 25/10/15.
  */
 public class Test {
+
+    static CountDownLatch latch = new CountDownLatch(3);
 
     public static interface ISmapleService {
         public String sayHello(String name);
@@ -94,6 +97,9 @@ public class Test {
             catch(Exception e) {
                 throw new RuntimeException(e);
             }
+            finally {
+                latch.countDown();
+            }
 
         }
     }
@@ -123,29 +129,39 @@ public class Test {
         executors.submit(new Client(1, ai));
         executors.submit(new Client(2, ai));
 
-        Thread.sleep(5000);
-        serviceDirectories.get(0).stop();
-        serviceDirectories.get(1).stop();
+        executors.submit(() -> {
+            try {
 
-        Thread.sleep(5000);
-        serviceDirectories.get(0).start();
-        serviceDirectories.get(1).start();
-        for (int ctr = 4; ctr < 7; ctr++) {
-            SocketRpcServerAddress addr = new AutoSocketRpcServerAddress();
-            RemoteServiceDirectory sd = createServiceDirectory("localhost:2181", addr);
-            RpcServer server = createRpcServer(addr, sd);
-            serviceDirectories.add(sd);
-            servers.add(server);
-            sd.putService("SampleService" + ctr, new SampleService("SampleService" + ctr));
-            server.start();
-            sd.start();
-        }
+                Thread.sleep(5000);
+                serviceDirectories.get(0).stop();
+                serviceDirectories.get(1).stop();
 
+                Thread.sleep(2000);
+                serviceDirectories.get(0).start();
+                serviceDirectories.get(1).start();
+                for (int ctr = 4; ctr < 7; ctr++) {
+                    SocketRpcServerAddress addr = new AutoSocketRpcServerAddress();
+                    RemoteServiceDirectory sd = createServiceDirectory("localhost:2181", addr);
+                    RpcServer server = createRpcServer(addr, sd);
+                    serviceDirectories.add(sd);
+                    servers.add(server);
+                    sd.putService("SampleService" + ctr, new SampleService("SampleService" + ctr));
+                    server.start();
+                    sd.start();
+                }
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            finally {
+                latch.countDown();
+            }
+        });
 
+        latch.await();
 
-        while (true) {
-            Thread.sleep(1000);
-        }
+        for (RpcServer server : servers)
+            server.stop();
 
 
     }

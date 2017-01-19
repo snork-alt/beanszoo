@@ -33,6 +33,8 @@ public class SocketRpcServer extends AbstractRpcServer<Socket> {
     public void start() throws Exception {
 
         serverSocket = new ServerSocket(((SocketRpcServerAddress)bindings).getPort());
+        serverSocket.setReuseAddress(true);
+
         Thread acceptor = new Thread() {
             @Override
             public void run() {
@@ -58,6 +60,7 @@ public class SocketRpcServer extends AbstractRpcServer<Socket> {
                 }
             }
         };
+        acceptor.setDaemon(true);
         acceptor.start();
     }
 
