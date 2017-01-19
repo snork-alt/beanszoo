@@ -1,6 +1,7 @@
 package com.dataheaps.beanszoo.rpc;
 
 import com.dataheaps.beanszoo.codecs.RPCRequestCodec;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

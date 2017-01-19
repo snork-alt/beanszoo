@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
  */
 
 @RequiredArgsConstructor
-public class SocketRpcServerAddress implements RpcServerAddress{
+public class SocketRpcServerAddress implements RpcServerAddress {
 
     @Getter final String hostname;
     @Getter final int port;

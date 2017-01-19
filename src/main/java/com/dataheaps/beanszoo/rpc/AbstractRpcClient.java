@@ -4,6 +4,7 @@ import com.dataheaps.beanszoo.codecs.RPCRequestCodec;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -73,7 +74,7 @@ public abstract class AbstractRpcClient<S> implements RpcClient {
         S session = getSession(address);
 
         byte[] buffer = StreamUtils.toByteArray(new Object[]{
-                messageId, codec.getContentType(), id, method, codec.serialize(args)
+                messageId, codec.getContentType(), id, method, codec.serialize(Arrays.asList(args))
         });
         sendMessage(session, buffer);
 

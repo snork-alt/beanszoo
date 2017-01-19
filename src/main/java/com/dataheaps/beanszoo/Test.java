@@ -1,5 +1,6 @@
 package com.dataheaps.beanszoo;
 
+import com.dataheaps.beanszoo.codecs.FstRPCRequestCodec;
 import com.dataheaps.beanszoo.codecs.NativeRPCRequestCodec;
 import com.dataheaps.beanszoo.codecs.RPCRequestCodec;
 import com.dataheaps.beanszoo.codecs.YamlRPCRequestCodec;
@@ -33,7 +34,7 @@ public class Test {
     static RpcServer createRpcServer(SocketRpcServerAddress address, ServiceDirectory sd) throws Exception {
         List<RPCRequestCodec> codes = new ArrayList<>();
         codes.add(new YamlRPCRequestCodec());
-        codes.add(new NativeRPCRequestCodec());
+        codes.add(new FstRPCRequestCodec());
         SocketRpcServer server = new SocketRpcServer(
                 address,
                 codes,
@@ -64,7 +65,7 @@ public class Test {
                 RemoteServiceDirectory sd = new ZookeperServiceDirectory("localhost:2181");
                 sd.start();
 
-                RpcClient cli = new SocketRpcClient(new YamlRPCRequestCodec(), 10000);
+                RpcClient cli = new SocketRpcClient(new FstRPCRequestCodec(), 10000);
                 Services services = new Services(cli, sd);
 
                 ISmapleService svc = (ISmapleService) services.getServiceByType(ISmapleService.class, "example");
@@ -105,7 +106,7 @@ public class Test {
         List<RemoteServiceDirectory> serviceDirectories = new ArrayList<>();
 
         for (int ctr = 0; ctr < 3; ctr++) {
-            SocketRpcServerAddress addr = new SocketRpcServerAddress("localhost", 8050 + ctr);
+            SocketRpcServerAddress addr = new AutoSocketRpcServerAddress();
             RemoteServiceDirectory sd = createServiceDirectory("localhost:2181", addr);
             RpcServer server = createRpcServer(addr, sd);
             serviceDirectories.add(sd);
@@ -123,14 +124,14 @@ public class Test {
         executors.submit(new Client(2, ai));
 
         Thread.sleep(5000);
-        serviceDirectories.get(0).stop(); //.removeService("SampleService0");
-        serviceDirectories.get(1).stop(); //.removeService("SampleService1");
+        serviceDirectories.get(0).stop();
+        serviceDirectories.get(1).stop();
 
         Thread.sleep(5000);
-        serviceDirectories.get(0).start(); //.removeService("SampleService0");
-        serviceDirectories.get(1).start(); //.removeService("SampleService1");
+        serviceDirectories.get(0).start();
+        serviceDirectories.get(1).start();
         for (int ctr = 4; ctr < 7; ctr++) {
-            SocketRpcServerAddress addr = new SocketRpcServerAddress("localhost", 8050 + ctr);
+            SocketRpcServerAddress addr = new AutoSocketRpcServerAddress();
             RemoteServiceDirectory sd = createServiceDirectory("localhost:2181", addr);
             RpcServer server = createRpcServer(addr, sd);
             serviceDirectories.add(sd);
