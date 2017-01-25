@@ -43,8 +43,4 @@ public class YamlRPCRequestCodec implements RPCRequestCodec {
         }
     }
 
-    @Override
-    public String getContentType() {
-        return "text/yaml";
-    }
 }

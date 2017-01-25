@@ -22,6 +22,22 @@ public class Multimap<K, V> {
 
     }
 
+    public synchronized void clear() {
+        root.clear();
+    }
+
+    synchronized public void putAll(Map<K, V> m) {
+        for (Map.Entry<K,V> e : m.entrySet()) {
+            put(e.getKey(), e.getValue());
+        }
+    }
+
+    synchronized public void removeAll(Map<K, V> m) {
+        for (Map.Entry<K,V> e : m.entrySet()) {
+            remove(e.getKey(), e.getValue());
+        }
+    }
+
     synchronized public Set<V> get(K key) {
         return root.get(key);
     }

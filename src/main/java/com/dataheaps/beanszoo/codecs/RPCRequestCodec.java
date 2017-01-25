@@ -9,6 +9,5 @@ public interface RPCRequestCodec {
 
     Object deserialize(byte[] o) throws IOException;
     byte[] serialize(Object o) throws IOException;
-    String getContentType();
 
 }

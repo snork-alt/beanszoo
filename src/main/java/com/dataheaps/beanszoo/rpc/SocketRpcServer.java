@@ -1,6 +1,7 @@
 package com.dataheaps.beanszoo.rpc;
 
 import com.dataheaps.beanszoo.codecs.RPCRequestCodec;
+import com.dataheaps.beanszoo.sd.ServiceDirectory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -25,8 +26,8 @@ public class SocketRpcServer extends AbstractRpcServer<Socket> {
     Thread acceptor;
     Map<Socket, SocketRpcController> controllers = new ConcurrentHashMap<>();
 
-    public SocketRpcServer(SocketRpcServerAddress bindings, List<RPCRequestCodec> codecs, RpcRequestHandler requestHandler) {
-        super(bindings, codecs, requestHandler);
+    public SocketRpcServer(SocketRpcServerAddress bindings, RPCRequestCodec codec, ServiceDirectory sd) {
+        super(bindings, codec, sd);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class SocketRpcServer extends AbstractRpcServer<Socket> {
         serverSocket = new ServerSocket(((SocketRpcServerAddress)bindings).getPort());
         serverSocket.setReuseAddress(true);
 
-        Thread acceptor = new Thread() {
+        acceptor = new Thread() {
             @Override
             public void run() {
                 while (!interrupted()) {
@@ -67,6 +68,7 @@ public class SocketRpcServer extends AbstractRpcServer<Socket> {
     @Override
     public void stop() throws Exception {
         acceptor.interrupt();
+        serverSocket.close();
     }
 
     @Override

@@ -21,8 +21,4 @@ public class FstRPCRequestCodec implements RPCRequestCodec {
         return conf.asByteArray(o);
     }
 
-    @Override
-    public String getContentType() {
-        return "application/java-fst";
-    }
 }

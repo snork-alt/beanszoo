@@ -19,8 +19,4 @@ public class NativeRPCRequestCodec implements RPCRequestCodec {
         return SerializationUtils.serialize((Serializable)o);
     }
 
-    @Override
-    public String getContentType() {
-        return "application/java";
-    }
 }

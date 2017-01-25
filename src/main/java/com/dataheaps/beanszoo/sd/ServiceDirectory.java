@@ -7,9 +7,9 @@ import java.util.Set;
  */
 public interface ServiceDirectory {
 
-    Object getService(String id);
-    Object getServiceByType(Class type, String name);
-    Set getServicesByType(Class type);
+    ServiceDescriptor getService(String id);
+    Set<ServiceDescriptor> getServicesByType(Class type, String name);
+    Object getLocalInstance(ServiceDescriptor d);
     void putService(Object service);
     void putService(String id, Object service);
     boolean removeService(Object service);
