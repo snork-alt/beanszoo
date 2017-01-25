@@ -35,7 +35,9 @@ in a Round-Robin fashion
 - **Partitioning Policy**: This policy allows the invocation to be partitioned across multiple instance in the
 cluster
 
-# Simple usage
+Invocation policies can be defined using the ```InvocationPolicy``` annotation
+
+## Basic usage
 
 The following class implements a simple service that we want to expose through BeansZoo
 
@@ -94,4 +96,44 @@ SampleService svc = clientServices.getService(SampleService.class);
 svc.test();
 
 ```
+
+## Using partitioning
+
+BeansZoo allows requests to be partitioned automatically across multiple instances of
+a service. In order to define a partitioned service it's necessary to use a couple
+of annotations if the service definition:
+
+```java
+
+public interface SamplePartitionedService {
+    @Partitioned(partitioner = RandomPartitioner.class)
+    List<String> process(@PartitionKey List<String> ls);
+}
+
+@InvocationPolicy(PartitioningPolicy.class)
+public static class SamplePartitionedServiceImpl implements SamplePartitionedService {
+
+    String id;
+
+    public SamplePartitionedServiceImpl(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public List<String> process(List<String> ls) {
+        List<String> res = new ArrayList();
+        for (String s : ls) {
+            res.add(id + ";" + s);
+        }
+        return res;
+    }
+}
+
+```
+The service definition above defined a partitioned method using the ```Partitioned``` annotation. The ```Partitioned```
+annotation optionally takes one argument that is the partitioner that will be used to partition and re-join the data.
+The argument that needs to be partitioned is marked with the ```PartitionKey``` annotation. This argument must necessarily
+be a ```List```. When the ```process()``` method is invoked, the list marked with the ```PartitionKey``` annotation is split
+ into multiple sublist and different sublists are sent to different instances of teh service. 
+
 
