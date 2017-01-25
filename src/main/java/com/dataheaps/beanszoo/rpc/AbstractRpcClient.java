@@ -64,14 +64,18 @@ public abstract class AbstractRpcClient<S> implements RpcClient {
     }
 
     @Override
-    public synchronized Object invoke(ServiceDescriptor d, String method, Object[] args) throws Exception {
+    public synchronized Object invoke(ServiceDescriptor d, String method, Class[] argTypes, Object[] args) throws Exception {
 
         long messageId = idGen.incrementAndGet();
         RpcSync sync = new RpcSync();
         events.put(messageId, sync);
 
         S session = getSession(d.getAddress());
-        RpcMessage msg = new RpcMessage(messageId, d, method, (args == null) ? new ArrayList<>() : Arrays.asList(args));
+        RpcMessage msg = new RpcMessage(
+                messageId, d, method,
+                argTypes,
+                (args == null) ? new ArrayList<>() : Arrays.asList(args)
+        );
         sendMessage(session, codec.serialize(msg));
 
         if (!sync.event.tryAcquire(timeout, TimeUnit.MILLISECONDS))

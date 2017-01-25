@@ -1,12 +1,12 @@
 package com.dataheaps.beanszoo.sd;
 
 import com.dataheaps.beanszoo.codecs.FstRPCRequestCodec;
-import com.dataheaps.beanszoo.codecs.RPCRequestCodec;
 import com.dataheaps.beanszoo.rpc.*;
+import com.dataheaps.beanszoo.sd.policies.InvocationPolicy;
+import com.dataheaps.beanszoo.sd.policies.RoundRobinPolicy;
 import org.apache.curator.test.TestingServer;
 import org.junit.Test;
 
-import javax.swing.text.html.parser.AttributeList;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -20,6 +20,7 @@ public class ServicesTest {
         int test();
     }
 
+    @Name("test")
     public static class SampleServiceImpl1 implements SampleService {
 
         int ctr = 0;
@@ -67,10 +68,7 @@ public class ServicesTest {
         clientSd.stop();
         rpcServer.stop();
 
-
-
     }
-
 
     public interface SampleService2 {
         String test();
@@ -90,7 +88,7 @@ public class ServicesTest {
         }
     }
 
-    @Policy(StandardPolicies.RoundRobin)
+    @InvocationPolicy(RoundRobinPolicy.class) @Name("test")
     public class SampleRRService2Impl implements SampleService2 {
 
         String name;
@@ -231,6 +229,54 @@ public class ServicesTest {
 
         Services clientServices = new Services(rpcClient, sds.get(0));
         SampleService2 svc = clientServices.getService(SampleService2.class);
+
+        List<String> res = new ArrayList<>();
+        for (int ctr=0;ctr<30;ctr++) {
+            res.add(svc.test());
+        }
+
+        Collections.sort(res);
+        Collections.sort(serviceNames);
+
+        assertEquals(res, serviceNames);
+
+        for (RpcServer s : servers)
+            s.stop();
+
+    }
+
+    @Test
+    public void roundRobinNamedInvocation() throws Exception {
+
+        TestingServer server = new TestingServer(true);
+
+        List<RpcServer> servers = new ArrayList<>();
+        List<ServiceDirectory> sds = new ArrayList<>();
+        List<String> serviceNames = new ArrayList<>();
+
+        for (int ctr=0;ctr<30;ctr++) {
+
+            SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + ctr);
+            ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
+                    serverAddress, server.getConnectString()
+            );
+            serverSd.start();
+            serverSd.putService(new SampleRRService2Impl("service" + ctr));
+            serviceNames.add("service" + ctr);
+
+            RpcServer rpcServer = new SocketRpcServer(serverAddress, new FstRPCRequestCodec(), serverSd);
+            rpcServer.start();
+
+            servers.add(rpcServer);
+            sds.add(serverSd);
+        }
+
+
+        RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
+        Thread.sleep(1000);
+
+        Services clientServices = new Services(rpcClient, sds.get(0));
+        SampleService2 svc = clientServices.getService(SampleService2.class, "test");
 
         List<String> res = new ArrayList<>();
         for (int ctr=0;ctr<30;ctr++) {

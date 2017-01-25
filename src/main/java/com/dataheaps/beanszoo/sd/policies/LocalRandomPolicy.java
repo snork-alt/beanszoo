@@ -1,8 +1,11 @@
-package com.dataheaps.beanszoo.sd;
+package com.dataheaps.beanszoo.sd.policies;
 
 import com.dataheaps.beanszoo.rpc.RpcClient;
 import com.dataheaps.beanszoo.rpc.RpcConstants;
 import com.dataheaps.beanszoo.rpc.RpcStatusException;
+import com.dataheaps.beanszoo.sd.ServiceDescriptor;
+import com.dataheaps.beanszoo.sd.ServiceDirectory;
+import com.dataheaps.beanszoo.sd.policies.Policy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -10,12 +13,11 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * Created by admin on 24/1/17.
  */
-public class LocalRandomPolicyManager implements PolicyManager {
+public class LocalRandomPolicy implements Policy {
 
     @Override
     public Object getServiceInstance(Class klass, String name, List<ServiceDescriptor> d, RpcClient client, ServiceDirectory services) {
@@ -41,7 +43,7 @@ public class LocalRandomPolicyManager implements PolicyManager {
                         if (sdl.isEmpty())
                             throw new IllegalArgumentException("Object not found");
 
-                        return client.invoke(sdl.get(Math.abs(rand.nextInt()) % sdl.size()), method.getName(), args);
+                        return client.invoke(sdl.get(Math.abs(rand.nextInt()) % sdl.size()), method.getName(), method.getParameterTypes(), args);
                     }
                     catch(RpcStatusException e) {
                         if (e.getStatusCode() != RpcConstants.STATUS_SERVER_EXCEPTION || ctr > 5)

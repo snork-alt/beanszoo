@@ -20,17 +20,19 @@ public class RpcMessage implements Serializable {
     long id;
     ServiceDescriptor service;
     String method;
+    Class[] argTypes;
     List<Object> args;
     Object returnValue;
     int status;
     String statusText;
 
-    public RpcMessage(long id, ServiceDescriptor service, String method, List<Object> args) {
+    public RpcMessage(long id, ServiceDescriptor service, String method, Class[] argTypes, List<Object> args) {
         this.type = Type.Request;
         this.id = id;
         this.service = service;
         this.method = method;
         this.args = args;
+        this.argTypes = argTypes;
     }
 
     public RpcMessage(long id, ServiceDescriptor service, String method, Object returnValue, int status, String statusText) {

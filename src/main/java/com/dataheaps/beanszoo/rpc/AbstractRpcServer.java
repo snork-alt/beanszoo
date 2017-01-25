@@ -38,14 +38,13 @@ public abstract class AbstractRpcServer<E> implements RpcServer {
         this.bindings = bindings;
     }
 
-    synchronized Object handleRpcRequest(ServiceDescriptor d, String method, List<Object> args)
+    synchronized Object handleRpcRequest(ServiceDescriptor d, String method, Class[] argTypes, List<Object> args)
             throws RpcStatusException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
         Object service = sd.getLocalInstance(d);
         if (service == null)
             throw new RpcStatusException(RpcConstants.STATUS_SERVER_EXCEPTION, d.getPath());
 
-        Class[] argTypes = (Class[])((List)args.stream().map(t -> t.getClass()).collect(Collectors.toList())).toArray(new Class[0]);
         Method m = service.getClass().getMethod(method, argTypes);
         if (m == null)
             throw new IllegalArgumentException("No method " + method);
@@ -66,7 +65,7 @@ public abstract class AbstractRpcServer<E> implements RpcServer {
 
                 try {
 
-                    Object result = handleRpcRequest(msg.service, msg.method, msg.args);
+                    Object result = handleRpcRequest(msg.service, msg.method, msg.argTypes, msg.args);
                     RpcMessage retMsg = new RpcMessage(
                             msg.id, msg.service, msg.method, result,
                             RpcConstants.STATUS_OK, null

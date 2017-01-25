@@ -1,6 +1,8 @@
 package com.dataheaps.beanszoo.sd;
 
 import com.dataheaps.beanszoo.rpc.RpcServerAddress;
+import com.dataheaps.beanszoo.sd.policies.InvocationPolicy;
+import com.dataheaps.beanszoo.sd.policies.LocalRandomPolicy;
 import com.dataheaps.beanszoo.utils.Multimap;
 import org.apache.commons.lang3.ClassUtils;
 
@@ -14,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractServiceDirectory implements ServiceDirectory {
 
-    static final String DefaultPolicy = StandardPolicies.LocalElseRandom;
+    static final Class DefaultPolicy = LocalRandomPolicy.class;
 
     final RpcServerAddress localAddress;
 
@@ -53,7 +55,7 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
 
         Map<String, ServiceDescriptor> serviceDescriptors = new HashMap<>();
         Name name = service.getClass().getAnnotation(Name.class);
-        Policy policy = service.getClass().getAnnotation(Policy.class);
+        InvocationPolicy policy = service.getClass().getAnnotation(InvocationPolicy.class);
         ClassUtils.getAllInterfaces(service.getClass()).forEach(
                 c -> {
                     serviceDescriptors.put(

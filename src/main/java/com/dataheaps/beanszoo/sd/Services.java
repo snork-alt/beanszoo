@@ -1,6 +1,10 @@
 package com.dataheaps.beanszoo.sd;
 
 import com.dataheaps.beanszoo.rpc.RpcClient;
+import com.dataheaps.beanszoo.sd.policies.LocalRandomPolicy;
+import com.dataheaps.beanszoo.sd.policies.Policy;
+import com.dataheaps.beanszoo.sd.policies.InstanceIdPolicy;
+import com.dataheaps.beanszoo.sd.policies.RoundRobinPolicy;
 
 import java.util.*;
 
@@ -10,33 +14,17 @@ import java.util.*;
 
 public class Services {
 
-    static final RemoteInstancePolicyManager remoteInstancePolicyManager = new RemoteInstancePolicyManager();
+    static final InstanceIdPolicy remoteInstancePolicyManager = new InstanceIdPolicy();
 
     final RpcClient rpcClient;
     final ServiceDirectory services;
-    final Map<String, PolicyManager> policies;
-
-    public Services(RpcClient rpcClient, ServiceDirectory services, Map<String, PolicyManager> policies) {
-        this.rpcClient = rpcClient;
-        this.services = services;
-        this.policies = createPolicies(policies);
-    }
 
     public Services(RpcClient rpcClient, ServiceDirectory services) {
         this.rpcClient = rpcClient;
         this.services = services;
-        this.policies = createPolicies(null);
     }
 
-    Map<String, PolicyManager> createPolicies(Map<String, PolicyManager> userPolicies) {
 
-        Map<String, PolicyManager> policies = new HashMap<>();
-        policies.put(StandardPolicies.LocalElseRandom, new LocalRandomPolicyManager());
-        policies.put(StandardPolicies.RoundRobin, new RoundRobinPolicyManager());
-        if (userPolicies != null)
-            policies.putAll(userPolicies);
-        return policies;
-    }
 
     public <T> T getService(String id, Class<T> klass) {
 
@@ -53,21 +41,22 @@ public class Services {
 
     }
 
-    PolicyManager getServicePolicy(Set<ServiceDescriptor> d) {
+    Policy getServicePolicy(Set<ServiceDescriptor> d)  {
 
-        String policy = null;
-        ArrayList<ServiceDescriptor> dList = new ArrayList<>(d);
-        for (ServiceDescriptor sd: dList) {
-            if (policy == null) policy = sd.getPolicy();
-            else if (!policy.equals(sd.getPolicy()))
-                throw new IllegalArgumentException("The same service specifies different policies on different servers");
+        try {
+            Class policy = null;
+            ArrayList<ServiceDescriptor> dList = new ArrayList<>(d);
+            for (ServiceDescriptor sd : dList) {
+                if (policy == null) policy = sd.getPolicy();
+                else if (!policy.equals(sd.getPolicy()))
+                    throw new IllegalArgumentException("The same service specifies different policies on different servers");
+            }
+
+            return (Policy) policy.newInstance();
         }
-
-        PolicyManager pm = policies.get(policy);
-        if (pm == null)
-            throw new IllegalArgumentException("Unable to handle policy " + policy);
-        return pm;
-
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public <T> T getService(Class<T> klass) {
@@ -75,102 +64,23 @@ public class Services {
         Set<ServiceDescriptor> d = services.getServicesByType(klass, null);
         if (d.isEmpty()) return null;
 
-        PolicyManager pm = getServicePolicy(d);
+        Policy pm = getServicePolicy(d);
         return (T) pm.getServiceInstance(
                 klass, null, new ArrayList<>(d), rpcClient, services
         );
 
     }
 
+    public <T> T getService(Class<T> klass, String name) {
 
+        Set<ServiceDescriptor> d = services.getServicesByType(klass, name);
+        if (d.isEmpty()) return null;
 
-    //
-//    Object createServiceProxy(final String id, final Class type, String name) {
-//        return Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class<?>[]{type}, new InvocationHandler() {
-//            @Override
-//            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//
-//                int ctr = 0;
-//                while (true) {
-//
-//                    try {
-//                        ServiceDescriptor rs = id != null ?
-//                                ((RemoteServiceDirectory) services).getRemoteService(id, type) :
-//                                ((RemoteServiceDirectory) services).getRemoteServiceByType(type, name);
-//
-//                        if (rs == null)
-//                            throw new IllegalArgumentException("Object note found");
-//
-//                        return rpcClient.invoke(rs.getAddress(), rs.getId(), method.getName(), args);
-//                    }
-//                    catch(RpcStatusException e) {
-//                        if (e.getStatusCode() != RpcConstants.STATUS_SERVER_EXCEPTION || ctr > 3)
-//                            throw e;
-//                        ctr++;
-//                    }
-//                    catch (Exception e) {
-//                        throw e;
-//                    }
-//
-//                }
-//            }
-//        });
-//    }
-//
-//    Object createTargetedServiceProxy(final ServiceDescriptor rs) {
-//        return Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class<?>[]{rs.getType()}, new InvocationHandler() {
-//            @Override
-//            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//
-//                int ctr = 0;
-//                while (true) {
-//
-//                    try {
-//                        return rpcClient.invoke(rs.getAddress(), rs.getId(), method.getName(), args);
-//                    }
-//                    catch(RpcStatusException e) {
-//                        if (e.getStatusCode() != RpcConstants.STATUS_SERVER_EXCEPTION || ctr > 3)
-//                            throw e;
-//                        ctr++;
-//                    }
-//                    catch (Exception e) {
-//                        throw e;
-//                    }
-//
-//                }
-//            }
-//        });
-//    }
-//
-//    public Object getServiceByType(Class type, String name) {
-//        Object service = services.getServiceByType(type, name);
-//        if (service != null || (service == null && (!(services instanceof RemoteServiceDirectory))))
-//            return service;
-//        return createServiceProxy(null, type, name);
-//    }
-//
-//    public Object getServiceById(String id, Class type) {
-//        Object service = services.getService(id);
-//        if (service != null || (service == null && (!(services instanceof RemoteServiceDirectory))))
-//            return service;
-//        return createServiceProxy(id, type, null);
-//    }
-//
-//    public Set getServicesByType(Class type) {
-//
-//        Set allServices = new HashSet<>();
-//
-//        Set local = services.getServicesByType(type);
-//        if (local != null) allServices.addAll(local);
-//
-//        if (services instanceof RemoteServiceDirectory) {
-//            Set<ServiceDescriptor> remote = ((RemoteServiceDirectory) services).getRemoteServicesByType(type);
-//            if (remote != null)
-//                for (ServiceDescriptor s : remote)
-//                    allServices.add(createTargetedServiceProxy(s));
-//        }
-//
-//        return allServices;
-//    }
+        Policy pm = getServicePolicy(d);
+        return (T) pm.getServiceInstance(
+                klass, null, new ArrayList<>(d), rpcClient, services
+        );
+
+    }
 
 }

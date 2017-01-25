@@ -16,7 +16,7 @@ public class ServiceDescriptor implements Serializable {
     @Getter final Class type;
     @Getter final String name;
     @Getter final String path;
-    @Getter final String policy;
+    @Getter final Class policy;
 
     @Override
     public boolean equals(Object o) {
