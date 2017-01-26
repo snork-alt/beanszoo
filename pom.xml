@@ -6,7 +6,7 @@
 
     <groupId>com.dataheaps</groupId>
     <artifactId>beanszoo</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 
     <dependencies>
         <dependency>
@@ -89,6 +89,14 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-pelatimtt-beanszoo</id>
+            <name>pelatimtt-beanszoo</name>
+            <url>https://api.bintray.com/maven/pelatimtt/beanszoo/;publish=1</url>
+        </repository>
+    </distributionManagement>
 
 
 </project>

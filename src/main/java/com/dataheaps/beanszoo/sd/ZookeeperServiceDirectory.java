@@ -3,6 +3,7 @@ package com.dataheaps.beanszoo.sd;
 import com.dataheaps.beanszoo.rpc.RpcServerAddress;
 import lombok.AllArgsConstructor;
 import org.apache.zookeeper.*;
+import org.apache.zookeeper.data.Stat;
 import org.nustaq.serialization.FSTConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,8 @@ import java.util.*;
 
 public class ZookeeperServiceDirectory extends AbstractServiceDirectory implements Watcher {
 
+    public static final int DEFAULT_ZK_TIMEOUT = 5000;
+
     @AllArgsConstructor
     static class Key {
         String root;
@@ -30,36 +33,65 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
 
     final static String ROOT_PATH_IDS = "/beanszoo/ids";
     final static String ROOT_PATH_TYPES = "/beanszoo/types";
-
-    boolean running = false;
-    Random random = new Random();
+    final static String ROOT_PATH_LOCKS = "/beanszoo/locks";
 
     Map<String, ServiceDescriptor> allDescriptors = new HashMap<>();
-    final String connectionString;
-    ZooKeeper zk;
     final FSTConfiguration fst = FSTConfiguration.createDefaultConfiguration();
+    final String connectionString;
+    ZooKeeper zkClient;
+    int zkTimeout;
+
+    public ZookeeperServiceDirectory(RpcServerAddress localAddr, String connectionString, int zkTimeout) {
+        super(localAddr);
+        this.connectionString = connectionString;
+        this.zkTimeout = zkTimeout;
+    }
 
     public ZookeeperServiceDirectory(RpcServerAddress localAddr, String connectionString) {
         super(localAddr);
         this.connectionString = connectionString;
+        this.zkTimeout = DEFAULT_ZK_TIMEOUT;
     }
 
     @Override
-    public synchronized void start() throws Exception {
-        zk = new ZooKeeper(connectionString, 120000, this);
+    public void doStart() throws Exception {
+
+        zkClient = new ZooKeeper(connectionString, zkTimeout, this);
         initializePath(ROOT_PATH_IDS);
         initializePath(ROOT_PATH_TYPES);
-        running = true;
+        initializePath(ROOT_PATH_LOCKS);
         retrieveRemoteServiceIds();
         retrieveRemoteServiceTypes();
-        for (Map.Entry<String,Object> s : localIds.entrySet())
-            zkRegisterService(s.getKey(), s.getValue());
-        super.start();
+        super.doStart();
+
     }
 
+    @Override
+    public void doStop() throws Exception {
+        super.doStop();
+        zkClient.close();
+    }
+
+    @Override
+    boolean activateService(String id) throws Exception {
+        if (!beforeRegistration(id, registeredServices.get(id)))
+            return false;
+        if (!super.activateService(id))
+            return false;
+        zkRegisterService(id, registeredServices.get(id));
+        return true;
+    }
+
+    @Override
+    boolean deactivateService(String id) throws Exception {
+        if (!super.deactivateService(id))
+            return false;
+        zkUnregisterService(id);
+        return true;
+    }
 
     String encodeKey(String root, String key, String id) {
-        return Paths.get(root, key + "@" + id + "@" + localAddress.geAddressString()).toString();
+        return Paths.get(root, key + "@" + id + "@" + getLocalAddress().geAddressString()).toString();
     }
 
     Key decodeKey(String key) {
@@ -72,17 +104,19 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
 
     synchronized void retrieveRemoteServiceIds()  {
         try {
-            List<String> children = zk.getChildren(ROOT_PATH_IDS, true);
+
+            List<String> children = zkClient.getChildren(ROOT_PATH_IDS, true);
             for (String key : children) {
                 String fullPath = Paths.get(ROOT_PATH_IDS, key).toString();
                 logger.info("Retrieving child: " + fullPath);
-                byte[] data = zk.getData(fullPath, true, null);
+                byte[] data = zkClient.getData(fullPath, true, null);
                 ServiceDescriptor desc = (ServiceDescriptor) fst.asObject(data);
-                if (!desc.getAddress().equals(localAddress.geAddressString())) {
+                if (!desc.getAddress().equals(getLocalAddress().geAddressString())) {
                     allDescriptors.put(fullPath, desc);
-                    allIds.put(desc.getPath(), desc);
+                    addRunningService(desc.getPath(), desc);
                 }
             }
+
         }
         catch(Exception e) {
             throw new RuntimeException(e);
@@ -91,15 +125,16 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
 
     synchronized void retrieveRemoteServiceTypes()  {
         try {
-            List<String> children = zk.getChildren(ROOT_PATH_TYPES, true);
+
+            List<String> children = zkClient.getChildren(ROOT_PATH_TYPES, true);
             for (String key : children) {
                 String fullPath = Paths.get(ROOT_PATH_TYPES, key).toString();
                 logger.info("Retrieving child: " + fullPath);
-                byte[] data = zk.getData(fullPath, true, null);
+                byte[] data = zkClient.getData(fullPath, true, null);
                 ServiceDescriptor desc = (ServiceDescriptor) fst.asObject(data);
-                if (!desc.getAddress().equals(localAddress.geAddressString())) {
+                if (!desc.getAddress().equals(getLocalAddress().geAddressString())) {
                     allDescriptors.put(fullPath, desc);
-                    allInterfaces.put(desc.getPath(), desc);
+                    addRunningInterface(desc.getPath(), desc);
                 }
             }
         }
@@ -121,14 +156,23 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
 
     synchronized void handleNodeDeleted(String path) {
 
-        Key key = decodeKey(path);
-
         if (path.startsWith(ROOT_PATH_IDS)) {
-            allIds.remove(key.key);
+            Key key = decodeKey(path);
+            removeRunningService(key.key);
             allDescriptors.remove(path);
         }
         else if (path.startsWith(ROOT_PATH_TYPES)) {
-            allInterfaces.remove(key.key, allDescriptors.remove(path));
+            Key key = decodeKey(path);
+            removeRunningInterface(key.key, allDescriptors.remove(path));
+        }
+        else if (path.startsWith(ROOT_PATH_LOCKS)) {
+            try {
+                String relative = Paths.get(ROOT_PATH_LOCKS).relativize(Paths.get(path)).toString();
+                unlock(relative);
+            }
+            catch (Exception e) {
+
+            }
         }
 
     }
@@ -139,7 +183,7 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
         String idkey = encodeKey(ROOT_PATH_IDS, idSvc.getPath(), id);
         logger.info("Registering local service key: " + idkey);
         allDescriptors.put(idkey, idSvc);
-        zk.create(
+        zkClient.create(
                 idkey, fst.asByteArray(idSvc),
                 ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL
         );
@@ -149,7 +193,7 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
             String classkey = encodeKey(ROOT_PATH_TYPES, e.getKey(), id);
             allDescriptors.put(classkey, e.getValue());
             logger.info("Registering local service key: " + classkey);
-            zk.create(
+            zkClient.create(
                     classkey, fst.asByteArray(e.getValue()),
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL
             );
@@ -158,18 +202,18 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
 
     synchronized void zkUnregisterService(String id) throws KeeperException, InterruptedException, UnsupportedEncodingException {
 
-        Map<String, ServiceDescriptor> ifSvc = getInterfaceLocalServiceDescriptors(localIds.get(id), id);
+        Map<String, ServiceDescriptor> ifSvc = getInterfaceLocalServiceDescriptors(registeredServices.get(id), id);
         for (Map.Entry<String, ServiceDescriptor> d : ifSvc.entrySet()) {
             String classkey = encodeKey(ROOT_PATH_TYPES, d.getKey(), id);
             allDescriptors.remove(classkey);
             logger.info("Unregistering local service key: " + classkey);
-            zk.delete(classkey, -1);
+            zkClient.delete(classkey, -1);
         }
 
         String idkey = encodeKey(ROOT_PATH_IDS, id, id);
         logger.info("Unregistering local service key: " + idkey);
         allDescriptors.remove(idkey);
-        zk.delete(idkey, -1);
+        zkClient.delete(idkey, -1);
     }
 
     public String trim(String stringToTrim, String stringToRemove )
@@ -192,7 +236,7 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
         for (String token : tokens) {
             current.add(token);
             try {
-                zk.create("/" + String.join("/", current), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zkClient.create("/" + String.join("/", current), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
             catch(KeeperException.NodeExistsException e) {
 
@@ -200,68 +244,71 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
         }
     }
 
-    @Override
-    public synchronized void stop() throws Exception {
-        super.stop();
-        try {
-            for (String sid : localIds.keySet())
-                zkUnregisterService(sid);
-        }
-        catch(Exception e) {
-            throw new RuntimeException(e);
-        }
 
-        running = false;
-        zk.close();
+
+    @Override
+    public synchronized void putService(String id, Object service) throws Exception {
+        super.putService(id, service);
     }
 
     @Override
-    public synchronized void putService(String id, Object service) {
-        try {
-            super.putService(id, service);
-            if (running)
-                zkRegisterService(id, service);
-        }
-        catch(Exception e) {
-            throw new RuntimeException(e);
+    public synchronized void removeService(Object service) throws Exception {
+        super.removeService(service);
+    }
+
+    @Override
+    public synchronized void removeService(String id) throws Exception {
+        super.removeService(id);
+    }
+
+    @Override
+    public synchronized boolean addLock(String id, UnlockCb unlockCb) throws Exception {
+        super.addLock(id, unlockCb);
+
+        while (true) {
+
+            try {
+                zkClient.create(
+                        Paths.get(ROOT_PATH_LOCKS, id).toString(), new byte[0],
+                        ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL
+                );
+                zkClient.exists(Paths.get(ROOT_PATH_LOCKS, id).toString(), true);
+                return true;
+            } catch (KeeperException e) {
+                if (e.code().equals(KeeperException.Code.NODEEXISTS)) {
+                    Stat node = zkClient.exists(Paths.get(ROOT_PATH_LOCKS, id).toString(), true);
+                    if (node != null) return false;
+                }
+                throw e;
+            } catch (Exception e) {
+                throw e;
+            }
+
         }
     }
 
     @Override
-    public synchronized boolean removeService(Object service) {
-        try {
-            String id = localIdsInverted.get(service);
-            if (id == null) return false;
-            if (running)
-                zkUnregisterService(localIdsInverted.get(service));
-            super.removeService(service);
-            return true;
-        }
-        catch(Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+    public synchronized void removeLock(String id) throws Exception {
 
-    @Override
-    public synchronized boolean removeService(String id) {
+        super.removeLock(id);
         try {
-            Object service = localIdsInverted.get(id);
-            if (service == null) return false;
-            if (running)
-                zkUnregisterService(localIdsInverted.get(service));
-            super.removeService(service);
-            return true;
+            zkClient.delete(
+                    Paths.get(ROOT_PATH_LOCKS, id).toString(), -1
+            );
+        } catch (KeeperException e) {
+            if (!e.code().equals(KeeperException.Code.NONODE)) {
+                throw e;
+            }
+        } catch (Exception e) {
+            throw e;
         }
-        catch(Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
+    }
 
     @Override
     synchronized public void process(WatchedEvent e) {
 
-        if (!running) return;
+        if (!isRunning()) return;
 
         logger.info("BeansZoo Event " + ": " + e.toString());
         switch(e.getType()) {

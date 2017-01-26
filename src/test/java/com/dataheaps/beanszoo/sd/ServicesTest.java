@@ -144,6 +144,8 @@ public class ServicesTest {
 
         for (RpcServer s : servers)
             s.stop();
+        for (ServiceDirectory s : sdl)
+            s.stop();
 
     }
 
@@ -194,6 +196,8 @@ public class ServicesTest {
 
         for (RpcServer s : servers)
             s.stop();
+        for (ServiceDirectory s : sdl)
+            s.stop();
 
     }
 
@@ -242,6 +246,8 @@ public class ServicesTest {
 
         for (RpcServer s : servers)
             s.stop();
+        for (ServiceDirectory s : sds)
+            s.stop();
 
     }
 
@@ -289,6 +295,8 @@ public class ServicesTest {
         assertEquals(res, serviceNames);
 
         for (RpcServer s : servers)
+            s.stop();
+        for (ServiceDirectory s : sds)
             s.stop();
 
     }

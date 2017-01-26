@@ -91,6 +91,8 @@ public class ServicesTestPartitioned {
 
         for (RpcServer s : servers)
             s.stop();
+        for (ServiceDirectory s : sdl)
+            s.stop();
 
     }
 
@@ -140,6 +142,8 @@ public class ServicesTestPartitioned {
 
         for (RpcServer s : servers)
             s.stop();
+        for (ServiceDirectory s : sdl)
+            s.stop();
 
     }
 
@@ -179,6 +183,10 @@ public class ServicesTestPartitioned {
 
         for (RpcServer s : servers)
             s.stop();
+        for (ServiceDirectory s : sdl)
+            s.stop();
+
+        Thread.sleep(1000);
 
     }
 

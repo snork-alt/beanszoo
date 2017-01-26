@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by matteopelati on 25/10/15.
  */
-public class StressTest {
+public class Example {
 
     static CountDownLatch latch = new CountDownLatch(3);
 
