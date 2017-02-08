@@ -92,10 +92,13 @@
 
     <distributionManagement>
         <repository>
-            <id>bintray-pelatimtt-beanszoo</id>
-            <name>pelatimtt-beanszoo</name>
-            <url>https://api.bintray.com/maven/pelatimtt/beanszoo/;publish=1</url>
+            <id>myMavenRepo.write</id>
+            <url>${myMavenRepo.write.url}</url>
         </repository>
+        <snapshotRepository>
+            <id>myMavenRepo.write</id>
+            <url>${myMavenRepo.write.url}</url>
+        </snapshotRepository>
     </distributionManagement>
 
 
