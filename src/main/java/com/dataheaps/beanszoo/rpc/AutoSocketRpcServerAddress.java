@@ -22,6 +22,10 @@ public class AutoSocketRpcServerAddress extends SocketRpcServerAddress {
         super(getLocalHostname(), getNextAvailablePortNumber());
     }
 
+    public AutoSocketRpcServerAddress(int port) throws UnknownHostException {
+        super(getLocalHostname(), port);
+    }
+
     @Override
     public String geAddressString() {
         return String.format("%s:%d", hostname, port);
