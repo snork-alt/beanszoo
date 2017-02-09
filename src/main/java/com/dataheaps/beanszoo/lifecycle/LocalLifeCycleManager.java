@@ -42,64 +42,7 @@ public class LocalLifeCycleManager extends AbstractLifeCycleManager {
 
     }
 
-    List<ServiceConfiguration> getServices(String[] roles, RoleConfiguration[] allRoles)  {
 
-        Map<String, RoleConfiguration> rolesMap =
-                Arrays.stream(allRoles).collect(Collectors.toMap(RoleConfiguration::getId, Function.identity()));
-
-        List<ServiceConfiguration> services = new ArrayList<>();
-        for (String role: roles) {
-            RoleConfiguration roleConfig = rolesMap.get(role);
-            if (roleConfig == null)
-                throw new IllegalArgumentException("Role " + role + " does not exist");
-            services.addAll(Arrays.asList(roleConfig.getServices()));
-        }
-
-        return services;
-    }
-
-    List<LifeCycle> instantiateServices(List<ServiceConfiguration> serviceConfigs) throws Exception {
-
-        List<LifeCycle> services = new ArrayList<>();
-        for (ServiceConfiguration cfg: serviceConfigs) {
-            LifeCycle instance = (LifeCycle) cfg.getType().newInstance();
-            new BeanMap(instance).putAll(cfg.getConfiguration());
-            services.add(instance);
-        }
-
-        return services;
-    }
-
-
-    Container createContainer(
-            ContainerConfiguration containerConfig, RoleConfiguration[] roles,
-            RpcFactory rpcFactory, ServiceDirectoryFactory sdFactory
-    ) throws Exception {
-
-        RpcServerAddress serverAddress = rpcFactory.createAddress();
-
-        ServiceDirectory sd = sdFactory.create(serverAddress);
-        sd.start();
-
-        RpcServer rpcServer = rpcFactory.createServer(serverAddress, sd);
-        rpcServer.start();
-
-        RpcClient rpcClient = rpcFactory.createClient();
-        Services services = new Services(rpcClient, sd);
-
-        List<ServiceConfiguration> serviceConfigs = getServices(containerConfig.getRoles(), roles);
-        List<LifeCycle> serviceInstances = instantiateServices(serviceConfigs);
-
-        for (LifeCycle lc: serviceInstances)
-            lc.init(services);
-        for (LifeCycle lc: serviceInstances)
-            lc.start();
-        for (LifeCycle lc: serviceInstances)
-            sd.putService(lc);
-
-        return new Container(sd, rpcClient, rpcServer, serverAddress, services);
-
-    }
 }
 
 
