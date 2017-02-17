@@ -20,6 +20,6 @@ containers:
   - id: container0
     roles: [role0]
     instances: 1
-  - id: container0
+  - id: container1
     roles: [role1]
     instances: 1

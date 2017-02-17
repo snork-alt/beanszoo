@@ -6,7 +6,7 @@
 
     <groupId>com.dataheaps</groupId>
     <artifactId>beanszoo</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
 
     <dependencies>
         <dependency>
@@ -72,16 +72,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-vfs2</artifactId>
             <version>2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.twill</groupId>
-            <artifactId>twill-api</artifactId>
-            <version>0.8.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.twill</groupId>
-            <artifactId>twill-yarn</artifactId>
-            <version>0.8.0</version>
         </dependency>
 
         <dependency>
