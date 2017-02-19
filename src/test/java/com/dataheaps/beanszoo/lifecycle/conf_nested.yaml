@@ -9,15 +9,9 @@ sdFactory: !!com.dataheaps.beanszoo.sd.ZookeeperServiceDirectoryFactory
 roles:
   - id: role0
     services:
-      - !instance
-          of: com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
-          with:
-            nested: !instance
-              of: com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
-              with:
-               nested: !instance
-                of: com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
-                with:
+      - !!com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
+          nested: !!com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
+               nested: !!com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
                   id: test
 
 containers:

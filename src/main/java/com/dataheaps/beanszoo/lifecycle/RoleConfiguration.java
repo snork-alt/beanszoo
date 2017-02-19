@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Data @AllArgsConstructor @NoArgsConstructor
 public class RoleConfiguration {
     String id;
-    InstanceConfiguration[] services;
+    Object[] services;
 }
