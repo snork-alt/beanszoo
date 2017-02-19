@@ -1,23 +1,21 @@
 package com.dataheaps.beanszoo.lifecycle;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.text.StrLookup;
-import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
-import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.AbstractConstruct;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
+import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.Tag;
 
-import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -42,23 +40,41 @@ public class YamlConfigurationReader implements ConfigurationReader {
             }
         }
 
-        class ClassConstruct extends AbstractConstruct {
+        class InstanceConstruct extends AbstractConstruct {
 
             public Object construct(Node node) {
+
+                String className = null;
+                Map<String, Object> config = new HashMap<>();
+
+                if (node instanceof ScalarNode) {
+                    className = (String) constructScalar((ScalarNode) node);
+                }
+                else if (node instanceof MappingNode) {
+                    Map<Object, Object> values = constructMapping((MappingNode) node);
+                    className = (String) values.get("of");
+                    if (values.containsKey("with"))
+                        config = (Map<String,Object>) values.get("with");
+                }
+                else {
+                    throw new RuntimeException("Invalid node type for !instance");
+                }
+
                 try {
-                    String value = (String) constructScalar((ScalarNode) node);
-                    return Class.forName(value);
+
+                    return new InstanceConfiguration(Class.forName(className), config);
                 }
                 catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
+
             }
         }
 
         public YamlConstructor(Properties props) {
             this.props = props;
             this.yamlConstructors.put(new Tag("!property"), new EnvConstruct());
-            this.yamlConstructors.put(new Tag("!type"), new ClassConstruct());
+            this.yamlConstructors.put(new Tag("!instance"), new InstanceConstruct());
         }
     }
 

@@ -27,12 +27,12 @@ public abstract class AbstractLifeCycleManager {
     public abstract void stop() throws Exception;
 
 
-    List<ServiceConfiguration> getServices(String[] roles, RoleConfiguration[] allRoles)  {
+    List<InstanceConfiguration> getServices(String[] roles, RoleConfiguration[] allRoles)  {
 
         Map<String, RoleConfiguration> rolesMap =
                 Arrays.stream(allRoles).collect(Collectors.toMap(RoleConfiguration::getId, Function.identity()));
 
-        List<ServiceConfiguration> services = new ArrayList<>();
+        List<InstanceConfiguration> services = new ArrayList<>();
         for (String role: roles) {
             RoleConfiguration roleConfig = rolesMap.get(role);
             if (roleConfig == null)
@@ -43,12 +43,31 @@ public abstract class AbstractLifeCycleManager {
         return services;
     }
 
-    List<LifeCycle> instantiateServices(List<ServiceConfiguration> serviceConfigs) throws Exception {
+
+    Object getInstance(Object i) throws InstantiationException, IllegalAccessException {
+
+        if (i instanceof InstanceConfiguration) {
+            InstanceConfiguration ic = (InstanceConfiguration) i;
+            BeanMap bean = new BeanMap(ic.getType().newInstance());
+            if (ic.getConfiguration() == null || ic.getConfiguration().isEmpty())
+                return bean.getBean();
+            for (Map.Entry<String, Object> e: ic.getConfiguration().entrySet()) {
+                if (bean.containsKey(e.getKey())) {
+                    bean.put(e.getKey(), getInstance(e.getValue()));
+                }
+            }
+            return bean.getBean();
+        }
+        else {
+            return i;
+        }
+    }
+
+    List<LifeCycle> instantiateServices(List<InstanceConfiguration> serviceConfigs) throws Exception {
 
         List<LifeCycle> services = new ArrayList<>();
-        for (ServiceConfiguration cfg: serviceConfigs) {
-            LifeCycle instance = (LifeCycle) cfg.getType().newInstance();
-            new BeanMap(instance).putAll(cfg.getConfiguration());
+        for (InstanceConfiguration cfg: serviceConfigs) {
+            LifeCycle instance = (LifeCycle) getInstance(cfg);
             services.add(instance);
         }
 
@@ -72,7 +91,7 @@ public abstract class AbstractLifeCycleManager {
         RpcClient rpcClient = rpcFactory.createClient();
         Services services = new Services(rpcClient, sd);
 
-        List<ServiceConfiguration> serviceConfigs = getServices(containerConfig.getRoles(), roles);
+        List<InstanceConfiguration> serviceConfigs = getServices(containerConfig.getRoles(), roles);
         List<LifeCycle> serviceInstances = instantiateServices(serviceConfigs);
 
         for (LifeCycle lc: serviceInstances)

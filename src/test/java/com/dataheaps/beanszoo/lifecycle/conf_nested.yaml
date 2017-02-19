@@ -10,18 +10,17 @@ roles:
   - id: role0
     services:
       - !instance
-          of: com.dataheaps.beanszoo.lifecycle.SimpleService0Impl
-          with: {}
-  - id: role1
-    services:
-      - !instance
-          of: com.dataheaps.beanszoo.lifecycle.SimpleService1Impl
-          with: {}
+          of: com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
+          with:
+            nested: !instance
+              of: com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
+              with:
+               nested: !instance
+                of: com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
+                with:
+                  id: test
 
 containers:
   - id: container0
     roles: [role0]
-    instances: 1
-  - id: container1
-    roles: [role1]
     instances: 1

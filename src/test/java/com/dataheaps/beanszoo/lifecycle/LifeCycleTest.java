@@ -30,14 +30,14 @@ public class LifeCycleTest {
 
         RoleConfiguration role0 = new RoleConfiguration();
         role0.setId("role0");
-        role0.setServices(new ServiceConfiguration[]{
-                new ServiceConfiguration(SimpleService0Impl.class, new HashMap<>())
+        role0.setServices(new InstanceConfiguration[]{
+                new InstanceConfiguration(SimpleService0Impl.class, new HashMap<>())
         });
 
         RoleConfiguration role1 = new RoleConfiguration();
         role1.setId("role1");
-        role1.setServices(new ServiceConfiguration[]{
-                new ServiceConfiguration(SimpleService1Impl.class, new HashMap<>())
+        role1.setServices(new InstanceConfiguration[]{
+                new InstanceConfiguration(SimpleService1Impl.class, new HashMap<>())
         });
 
         conf.setRoles(new RoleConfiguration[] {role0, role1});
@@ -95,6 +95,27 @@ public class LifeCycleTest {
         for (String e: res)
             assert (e.equals(ZookeeperServiceDirectoryTest.SampleServiceImpl1.class.getCanonicalName()));
 
+
+
+    }
+
+    @Test
+    public void testYamlConfigNested() throws Exception {
+
+        TestingServer server = new TestingServer(true);
+        Properties p = new Properties();
+        p.put("zkQuorum", server.getConnectString());
+
+        YamlConfigurationReader reader = new YamlConfigurationReader();
+        reader.props = p;
+        String path = new File("src/test/java/com/dataheaps/beanszoo/lifecycle/conf_nested.yaml").getAbsolutePath();
+        Configuration conf = reader.load("file:" + path);
+
+        LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf);
+        lcm.start();
+
+        Container c = lcm.containers.get(0);
+        assert(c.services.getService(NestedService.class).test().equals("test"));
 
 
     }

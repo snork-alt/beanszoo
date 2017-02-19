@@ -13,7 +13,7 @@ import java.util.Set;
  */
 
 @Data @AllArgsConstructor @NoArgsConstructor
-public class ServiceConfiguration {
+public class InstanceConfiguration {
     Class<?> type;
     Map<String,Object> configuration = new HashMap<>();
 }
