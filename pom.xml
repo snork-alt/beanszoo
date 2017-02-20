@@ -6,7 +6,7 @@
 
     <groupId>com.dataheaps</groupId>
     <artifactId>beanszoo</artifactId>
-    <version>0.2.4</version>
+    <version>0.2.5</version>
 
     <dependencies>
         <dependency>
