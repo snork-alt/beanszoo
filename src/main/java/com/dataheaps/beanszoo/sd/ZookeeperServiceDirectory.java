@@ -179,7 +179,9 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
 
     synchronized void zkRegisterService(String id, Object service) throws KeeperException, InterruptedException, UnsupportedEncodingException {
 
-        ServiceDescriptor idSvc = getIdLocalServiceDescriptor(id);
+        Object metadata = (service instanceof HasMetadata) ? ((HasMetadata) service).getMetadata() : null;
+
+        ServiceDescriptor idSvc = getIdLocalServiceDescriptor(id, metadata);
         String idkey = encodeKey(ROOT_PATH_IDS, idSvc.getPath(), id);
         logger.info("Registering local service key: " + idkey);
         allDescriptors.put(idkey, idSvc);

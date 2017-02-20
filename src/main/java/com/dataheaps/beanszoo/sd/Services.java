@@ -7,6 +7,8 @@ import com.dataheaps.beanszoo.sd.policies.InstanceIdPolicy;
 import com.dataheaps.beanszoo.sd.policies.RoundRobinPolicy;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by matteopelati on 26/10/15.
@@ -80,6 +82,26 @@ public class Services {
         return (T) pm.getServiceInstance(
                 klass, null, new ArrayList<>(d), rpcClient, services
         );
+
+    }
+
+    public Set<Object> getServicesMetadata(Class<?> klass, String name) {
+        Set<ServiceDescriptor> d = services.getServicesByType(klass, name);
+        if (d.isEmpty()) return Collections.EMPTY_SET;
+        return d.stream().flatMap(
+                e -> (e.getMetadata() == null) ? Stream.empty() : Stream.of(e.getMetadata())).collect(Collectors.toSet()
+        );
+    }
+
+    public Set<Object> getServicesMetadata(Class<?> klass) {
+        return getServicesMetadata(klass, null);
+    }
+
+    public <T> T getServiceMetadata(String id, Class<T> metadataType) {
+
+        ServiceDescriptor d = services.getService(id);
+        if (d == null) return null;
+        return (T) d.getMetadata();
 
     }
 

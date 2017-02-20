@@ -2,6 +2,7 @@ package com.dataheaps.beanszoo.sd;
 
 import com.dataheaps.beanszoo.rpc.AutoSocketRpcServerAddress;
 import com.dataheaps.beanszoo.rpc.SocketRpcServerAddress;
+import com.google.common.collect.ImmutableSet;
 import org.apache.curator.test.TestingServer;
 import org.junit.Test;
 
@@ -198,6 +199,57 @@ public class ZookeeperServiceDirectoryTest {
         assert (allServices.size() == 0);
         assert (allNamedServices.size() == 0);
 
+
+    }
+
+
+    static interface ServiceWithMetadata {}
+
+    static class ServiceWithMetadataImpl implements ServiceWithMetadata, HasMetadata {
+
+        String metadata;
+
+        public ServiceWithMetadataImpl(String metadata) {
+            this.metadata = metadata;
+        }
+
+        @Override
+        public Object getMetadata() {
+            return metadata;
+        }
+    }
+
+
+    @Test
+    public void testMetadata() throws Exception {
+
+        TestingServer server = new TestingServer(true);
+        List<ServiceDirectory> sds = new ArrayList<>();
+
+        ZookeeperServiceDirectory sd0 = new ZookeeperServiceDirectory(
+                new SocketRpcServerAddress("localhost", 9090), server.getConnectString()
+        );
+        sd0.putService("id0", new ServiceWithMetadataImpl("m0"));
+        sd0.start();
+
+        ZookeeperServiceDirectory sd1 = new ZookeeperServiceDirectory(
+                new SocketRpcServerAddress("localhost", 9091), server.getConnectString()
+        );
+        sd1.putService("id1", new ServiceWithMetadataImpl("m1"));
+        sd1.start();
+
+        Thread.sleep(1000);
+
+        ZookeeperServiceDirectory sdLookup = new ZookeeperServiceDirectory(
+                new SocketRpcServerAddress("localhost", 9200), server.getConnectString()
+        );
+        sdLookup.start();
+        Services services = new Services(null, sdLookup);
+
+        Thread.sleep(1000);
+        Set<Object> m = services.getServicesMetadata(ServiceWithMetadata.class);
+
+        assert (m.equals(ImmutableSet.of("m0", "m1")));
 
     }
 

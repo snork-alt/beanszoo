@@ -87,7 +87,9 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
         for (String i: ifaces.keySet())
             runningLocalInterfaces.put(i, service);
 
-        allRunningServices.put(id, getIdLocalServiceDescriptor(id));
+        Object metadata = (service instanceof HasMetadata) ? ((HasMetadata) service).getMetadata() : null;
+
+        allRunningServices.put(id, getIdLocalServiceDescriptor(id, metadata));
         allRunningInterfaces.putAll(ifaces);
 
         return true;
@@ -130,8 +132,10 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
         }
     }
 
-    ServiceDescriptor getIdLocalServiceDescriptor(String id) {
-        return new ServiceDescriptor(localAddress.geAddressString(), id, null, null, id, null);
+    ServiceDescriptor getIdLocalServiceDescriptor(String id, Object metadata) {
+
+        // FIXME: Make sure the same service type (the implementation, meaning same class) is not registered twice in a local ServiceDirectory
+        return new ServiceDescriptor(localAddress.geAddressString(), id, null, null, id, null, metadata);
     }
 
     Map<String, ServiceDescriptor> getInterfaceLocalServiceDescriptors(Object service, String id) {
@@ -139,13 +143,15 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
         Map<String, ServiceDescriptor> serviceDescriptors = new HashMap<>();
         Name name = service.getClass().getAnnotation(Name.class);
         InvocationPolicy policy = service.getClass().getAnnotation(InvocationPolicy.class);
+        Object metadata = (service instanceof HasMetadata) ? ((HasMetadata) service).getMetadata() : null;
+
         ClassUtils.getAllInterfaces(service.getClass()).forEach(
                 c -> {
                     serviceDescriptors.put(
                             c.getCanonicalName(),
                             new ServiceDescriptor(
                                     localAddress.geAddressString(), null, c, null, c.getCanonicalName(),
-                                    policy == null ? DefaultPolicy : policy.value()
+                                    policy == null ? DefaultPolicy : policy.value(), metadata
                             )
                     );
                     if (name != null) {
@@ -154,7 +160,7 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
                             new ServiceDescriptor(
                                     localAddress.geAddressString(), null, c, name.value(),
                                     c.getCanonicalName() + "!" + name.value(),
-                                    policy == null ? DefaultPolicy : policy.value()
+                                    policy == null ? DefaultPolicy : policy.value(), metadata
                             )
                         );
                     }
