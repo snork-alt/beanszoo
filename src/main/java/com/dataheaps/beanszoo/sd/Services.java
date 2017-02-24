@@ -26,7 +26,9 @@ public class Services {
         this.services = services;
     }
 
-
+    public ServiceDirectory getServiceDirectory() {
+        return services;
+    }
 
     public <T> T getService(String id, Class<T> klass) {
 
