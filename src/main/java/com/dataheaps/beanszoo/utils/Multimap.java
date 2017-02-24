@@ -46,6 +46,8 @@ public class Multimap<K, V> {
         Set<V> values = root.get(key);
         if (values == null) return;
         values.remove(value);
+        if (values.isEmpty())
+            root.remove(key);
     }
 
     synchronized public void removeAll(K key) {
