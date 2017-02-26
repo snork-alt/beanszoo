@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ConcurrencyTest {
 
     static final int CLIENTS = 2;
-    static final int CLIENT_THREADS = 10;
-    static final int REQUEST_PER_THREAD = 10000;
+    static final int CLIENT_THREADS = 3;
+    static final int REQUEST_PER_THREAD = 500;
 
     static CountDownLatch latch = new CountDownLatch(CLIENTS*CLIENT_THREADS + 1);
     static AtomicInteger count = new AtomicInteger(0);
@@ -138,11 +138,11 @@ public class ConcurrencyTest {
         executors.submit(() -> {
             try {
 
-                Thread.sleep(5000);
+                Thread.sleep(200);
                 serviceDirectories.get(0).stop();
                 serviceDirectories.get(1).stop();
 
-                Thread.sleep(2000);
+                Thread.sleep(200);
                 serviceDirectories.get(0).start();
                 serviceDirectories.get(1).start();
                 for (int ctr = 4; ctr < 10; ctr++) {
@@ -155,7 +155,7 @@ public class ConcurrencyTest {
                     server.start();
                     sd.start();
                 }
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             }
             catch (Exception e) {
                 throw new RuntimeException(e);
