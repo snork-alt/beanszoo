@@ -77,16 +77,16 @@ public abstract class AbstractLifeCycleManager {
     }
 
 
-    void injectServices(Object o, Services services) throws IllegalAccessException {
+    void injectServices(Object o, Services services) throws IllegalAccessException, IllegalArgumentException {
 
         List<Field> fields = ReflectionUtils.getFieldsIncludingSuperclasses(o.getClass());
         for (Field f : fields) {
             if (f.getAnnotation(Service.class) != null) {
                 Object service = services.getService(f.getType());
-                if (service != null) {
-                    f.setAccessible(true);
-                    f.set(o, service);
-                }
+                if (service == null)
+                    throw new IllegalArgumentException("The service type " + f.getType().getCanonicalName() +  " cannot be found");
+                f.setAccessible(true);
+                f.set(o, service);
             }
         }
     }
