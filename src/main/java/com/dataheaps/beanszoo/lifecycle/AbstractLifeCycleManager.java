@@ -9,7 +9,9 @@ import com.dataheaps.beanszoo.sd.ServiceDirectoryFactory;
 import com.dataheaps.beanszoo.sd.Services;
 import lombok.AllArgsConstructor;
 import org.apache.commons.beanutils.BeanMap;
+import org.codehaus.plexus.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -75,6 +77,20 @@ public abstract class AbstractLifeCycleManager {
     }
 
 
+    void injectServices(Object o, Services services) throws IllegalAccessException {
+
+        List<Field> fields = ReflectionUtils.getFieldsIncludingSuperclasses(o.getClass());
+        for (Field f : fields) {
+            if (f.getAnnotation(Service.class) != null) {
+                Object service = services.getService(f.getType());
+                if (service != null) {
+                    f.setAccessible(true);
+                    f.set(o, service);
+                }
+            }
+        }
+    }
+
     Container createContainer(
             ContainerConfiguration containerConfig, RoleConfiguration[] roles,
             RpcFactory rpcFactory, ServiceDirectoryFactory sdFactory
@@ -94,12 +110,12 @@ public abstract class AbstractLifeCycleManager {
         List<Object> serviceConfigs = getServices(containerConfig.getRoles(), roles);
         List<LifeCycle> serviceInstances = instantiateServices(serviceConfigs);
 
-        for (LifeCycle lc: serviceInstances)
+        for (LifeCycle lc: serviceInstances) {
+            injectServices(lc, services);
             lc.init(services);
-        for (LifeCycle lc: serviceInstances)
             lc.start();
-        for (LifeCycle lc: serviceInstances)
             sd.putService(lc);
+        }
 
         return new Container(sd, rpcClient, rpcServer, serverAddress, services);
 
