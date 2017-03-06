@@ -40,6 +40,19 @@ public class YamlConfigurationReader implements ConfigurationReader {
             }
         }
 
+        class ClassConstruct extends AbstractConstruct {
+
+            public Object construct(Node node) {
+                try {
+                    String varName = (String) constructScalar((ScalarNode) node);
+                    return Class.forName(varName);
+                }
+                catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
         class InstanceConstruct extends AbstractConstruct {
 
             public Object construct(Node node) {
@@ -75,6 +88,7 @@ public class YamlConfigurationReader implements ConfigurationReader {
             this.props = props;
             this.yamlConstructors.put(new Tag("!property"), new EnvConstruct());
             this.yamlConstructors.put(new Tag("!instance"), new InstanceConstruct());
+            this.yamlConstructors.put(new Tag("!class"), new ClassConstruct());
         }
     }
 

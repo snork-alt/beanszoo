@@ -21,7 +21,7 @@ public class ServicesTestLeaderElection {
         String test();
     }
 
-    @OnRegister(LeaderElectionHandler.class) @Name("SingleInstance")
+    @OnRegister(LeaderElectionHandler.class) @Group("SingleInstance")
     public static class SampleSingleInstanceServiceImpl
             implements SampleSingleInstanceService, Activable {
 

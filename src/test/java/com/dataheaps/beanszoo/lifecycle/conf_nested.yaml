@@ -13,6 +13,7 @@ roles:
           nested: !!com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
                nested: !!com.dataheaps.beanszoo.lifecycle.NestedServiceImpl
                   id: test
+                  klass: !class java.util.ArrayList
 
 containers:
   - id: container0

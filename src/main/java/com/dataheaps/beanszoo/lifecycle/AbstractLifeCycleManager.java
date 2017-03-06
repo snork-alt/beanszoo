@@ -82,7 +82,12 @@ public abstract class AbstractLifeCycleManager {
         List<Field> fields = ReflectionUtils.getFieldsIncludingSuperclasses(o.getClass());
         for (Field f : fields) {
             if (f.getAnnotation(Service.class) != null) {
-                Object service = services.getService(f.getType());
+                Object service = null;
+                if (f.getAnnotation(Service.class).value().isEmpty())
+                    service = services.getService(f.getType());
+                else
+                    service = services.getService(f.getType(), f.getAnnotation(Service.class).value());
+
                 if (service == null)
                     throw new IllegalArgumentException("The service type " + f.getType().getCanonicalName() +  " cannot be found");
                 f.setAccessible(true);

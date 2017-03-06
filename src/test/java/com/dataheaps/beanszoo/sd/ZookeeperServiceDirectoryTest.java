@@ -27,7 +27,7 @@ public class ZookeeperServiceDirectoryTest {
         }
     }
 
-    @Name("impl2")
+    @Name({"impl2", "bogusImpl"})
     public static class SampleServiceImpl2 implements SampleService {
         @Override
         public String test() {
@@ -251,6 +251,36 @@ public class ZookeeperServiceDirectoryTest {
 
         assert (m.equals(ImmutableSet.of("m0", "m1")));
 
+    }
+
+    @Test
+    public void testNamedImpl() throws Exception {
+
+        TestingServer server = new TestingServer(true);
+
+        ZookeeperServiceDirectory sd0 = new ZookeeperServiceDirectory(
+                new SocketRpcServerAddress("localhost", 9090), server.getConnectString()
+        );
+        sd0.putService("id0", new SampleServiceImpl2());
+        sd0.start();
+
+        Services services = new Services(null, sd0);
+
+        Thread.sleep(500);
+
+        assert (services.getService(SampleService.class, "impl2") != null);
+        assert (services.getService(SampleService.class, "bogusImpl") != null);
+
+        ZookeeperServiceDirectory sdLookup = new ZookeeperServiceDirectory(
+                new SocketRpcServerAddress("localhost", 9200), server.getConnectString()
+        );
+        sdLookup.start();
+        Services services1 = new Services(null, sdLookup);
+
+        Thread.sleep(500);
+
+        assert (services1.getService(SampleService.class, "impl2") != null);
+        assert (services1.getService(SampleService.class, "bogusImpl") != null);
     }
 
 }

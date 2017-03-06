@@ -20,7 +20,7 @@ public class ServicesTest {
         int test();
     }
 
-    @Name("test")
+    @Name({"test", "test2"})
     public static class SampleServiceImpl1 implements SampleService {
 
         int ctr = 0;

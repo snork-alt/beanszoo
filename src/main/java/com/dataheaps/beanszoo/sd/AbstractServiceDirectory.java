@@ -141,7 +141,7 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
     Map<String, ServiceDescriptor> getInterfaceLocalServiceDescriptors(Object service, String id) {
 
         Map<String, ServiceDescriptor> serviceDescriptors = new HashMap<>();
-        Name name = service.getClass().getAnnotation(Name.class);
+        Name names = service.getClass().getAnnotation(Name.class);
         InvocationPolicy policy = service.getClass().getAnnotation(InvocationPolicy.class);
         Object metadata = (service instanceof HasMetadata) ? ((HasMetadata) service).getMetadata() : null;
 
@@ -154,15 +154,17 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
                                     policy == null ? DefaultPolicy : policy.value(), metadata
                             )
                     );
-                    if (name != null) {
-                        serviceDescriptors.put(
-                            c.getCanonicalName() + "!" + name.value(),
-                            new ServiceDescriptor(
-                                    localAddress.geAddressString(), null, c, name.value(),
-                                    c.getCanonicalName() + "!" + name.value(),
-                                    policy == null ? DefaultPolicy : policy.value(), metadata
-                            )
-                        );
+                    if (names != null) {
+                        for (String name: names.value()) {
+                            serviceDescriptors.put(
+                                    c.getCanonicalName() + "!" + name,
+                                    new ServiceDescriptor(
+                                            localAddress.geAddressString(), null, c, name,
+                                            c.getCanonicalName() + "!" + name,
+                                            policy == null ? DefaultPolicy : policy.value(), metadata
+                                    )
+                            );
+                        }
                     }
                 }
         );
