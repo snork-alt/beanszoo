@@ -27,6 +27,9 @@ public class LocalRandomPolicy implements Policy {
             if (i != null) return i;
         }
 
+        if (!klass.isInterface())
+            throw new IllegalArgumentException("Cannot access a remote service by class. An interface must be specified");
+
         return Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class<?>[]{klass}, new InvocationHandler() {
 
             Random rand = new Random();

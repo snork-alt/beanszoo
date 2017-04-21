@@ -145,7 +145,12 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
         InvocationPolicy policy = service.getClass().getAnnotation(InvocationPolicy.class);
         Object metadata = (service instanceof HasMetadata) ? ((HasMetadata) service).getMetadata() : null;
 
-        ClassUtils.getAllInterfaces(service.getClass()).forEach(
+        Set<Class> allClasses = new HashSet<>();
+        allClasses.addAll(ClassUtils.getAllInterfaces(service.getClass()));
+        allClasses.addAll(ClassUtils.getAllSuperclasses(service.getClass()));
+        allClasses.add(service.getClass());
+
+        allClasses.forEach(
                 c -> {
                     serviceDescriptors.put(
                             c.getCanonicalName(),
