@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ConcurrencyTest {
 
     static final int CLIENTS = 2;
-    static final int CLIENT_THREADS = 3;
-    static final int REQUEST_PER_THREAD = 500;
+    static final int CLIENT_THREADS = 5;
+    static final int REQUEST_PER_THREAD = 5000;
 
     static CountDownLatch latch = new CountDownLatch(CLIENTS*CLIENT_THREADS + 1);
     static AtomicInteger count = new AtomicInteger(0);

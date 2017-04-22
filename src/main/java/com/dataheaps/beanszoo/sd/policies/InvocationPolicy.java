@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Created by admin on 24/1/17.
  */
-@Target(ElementType.TYPE)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface InvocationPolicy {
     Class value();

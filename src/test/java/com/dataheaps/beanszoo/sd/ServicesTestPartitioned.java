@@ -16,11 +16,13 @@ import static org.junit.Assert.assertEquals;
 public class ServicesTestPartitioned {
 
     public interface SamplePartitionedService {
+        @InvocationPolicy(PartitioningPolicy.class)
         @Partitioned List<String> process(@PartitionKey List<String> ls);
+
         String nonPartitioned();
     }
 
-    @InvocationPolicy(PartitioningPolicy.class)
+
     public static class SamplePartitionedServiceImpl implements SamplePartitionedService {
 
         String id;

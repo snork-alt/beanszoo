@@ -135,14 +135,13 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
     ServiceDescriptor getIdLocalServiceDescriptor(String id, Object metadata) {
 
         // FIXME: Make sure the same service type (the implementation, meaning same class) is not registered twice in a local ServiceDirectory
-        return new ServiceDescriptor(localAddress.geAddressString(), id, null, null, id, null, metadata);
+        return new ServiceDescriptor(localAddress.geAddressString(), id, null, null, id, metadata);
     }
 
     Map<String, ServiceDescriptor> getInterfaceLocalServiceDescriptors(Object service, String id) {
 
         Map<String, ServiceDescriptor> serviceDescriptors = new HashMap<>();
         Name names = service.getClass().getAnnotation(Name.class);
-        InvocationPolicy policy = service.getClass().getAnnotation(InvocationPolicy.class);
         Object metadata = (service instanceof HasMetadata) ? ((HasMetadata) service).getMetadata() : null;
 
         Set<Class> allClasses = new HashSet<>();
@@ -155,8 +154,7 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
                     serviceDescriptors.put(
                             c.getCanonicalName(),
                             new ServiceDescriptor(
-                                    localAddress.geAddressString(), null, c, null, c.getCanonicalName(),
-                                    policy == null ? DefaultPolicy : policy.value(), metadata
+                                    localAddress.geAddressString(), null, c, null, c.getCanonicalName(), metadata
                             )
                     );
                     if (names != null) {
@@ -165,8 +163,7 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
                                     c.getCanonicalName() + "!" + name,
                                     new ServiceDescriptor(
                                             localAddress.geAddressString(), null, c, name,
-                                            c.getCanonicalName() + "!" + name,
-                                            policy == null ? DefaultPolicy : policy.value(), metadata
+                                            c.getCanonicalName() + "!" + name, metadata
                                     )
                             );
                         }

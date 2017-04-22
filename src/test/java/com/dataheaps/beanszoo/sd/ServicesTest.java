@@ -74,6 +74,11 @@ public class ServicesTest {
         String test();
     }
 
+    public interface SampleService2RR {
+        @InvocationPolicy(RoundRobinPolicy.class)
+        String test();
+    }
+
     public class SampleService2Impl implements SampleService2 {
 
         String name;
@@ -88,8 +93,8 @@ public class ServicesTest {
         }
     }
 
-    @InvocationPolicy(RoundRobinPolicy.class) @Name("test")
-    public class SampleRRService2Impl implements SampleService2 {
+    @Name("test")
+    public class SampleRRService2Impl implements SampleService2RR {
 
         String name;
 
@@ -232,7 +237,7 @@ public class ServicesTest {
         Thread.sleep(1000);
 
         Services clientServices = new Services(rpcClient, sds.get(0));
-        SampleService2 svc = clientServices.getService(SampleService2.class);
+        SampleService2RR svc = clientServices.getService(SampleService2RR.class);
 
         List<String> res = new ArrayList<>();
         for (int ctr=0;ctr<30;ctr++) {
@@ -282,7 +287,7 @@ public class ServicesTest {
         Thread.sleep(1000);
 
         Services clientServices = new Services(rpcClient, sds.get(0));
-        SampleService2 svc = clientServices.getService(SampleService2.class, "test");
+        SampleService2RR svc = clientServices.getService(SampleService2RR.class, "test");
 
         List<String> res = new ArrayList<>();
         for (int ctr=0;ctr<30;ctr++) {

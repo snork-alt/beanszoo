@@ -283,21 +283,6 @@ public class ZookeeperServiceDirectoryTest {
         assert (services1.getService(SampleService.class, "bogusImpl") != null);
     }
 
-    @Test
-    public void testClassImplLocal() throws Exception {
-
-        TestingServer server = new TestingServer(true);
-
-        ZookeeperServiceDirectory sd0 = new ZookeeperServiceDirectory(
-                new SocketRpcServerAddress("localhost", 9090), server.getConnectString()
-        );
-        sd0.putService("id0", new SampleServiceImpl1());
-        sd0.start();
-
-        Services services = new Services(null, sd0);
-        assert (services.getService(SampleServiceImpl1.class) != null);
-
-    }
 
     @Test(expected=IllegalArgumentException.class)
     public void testClassImplRemote() throws Exception {

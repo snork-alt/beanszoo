@@ -16,7 +16,6 @@ public class ServiceDescriptor implements Serializable {
     @Getter final Class type;
     @Getter final String name;
     @Getter final String path;
-    @Getter final Class policy;
     @Getter final Object metadata;
 
     @Override
