@@ -146,8 +146,6 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
 
         Set<Class> allClasses = new HashSet<>();
         allClasses.addAll(ClassUtils.getAllInterfaces(service.getClass()));
-        allClasses.addAll(ClassUtils.getAllSuperclasses(service.getClass()));
-        allClasses.add(service.getClass());
 
         allClasses.forEach(
                 c -> {
