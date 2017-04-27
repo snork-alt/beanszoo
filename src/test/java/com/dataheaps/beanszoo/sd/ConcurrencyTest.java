@@ -47,7 +47,7 @@ public class ConcurrencyTest {
     }
 
     static ServiceDirectory createServiceDirectory(String connString, RpcServerAddress address) throws Exception {
-        ZookeeperServiceDirectory sd = new ZookeeperServiceDirectory(address, connString);
+        ZookeeperServiceDirectory sd = new ZookeeperServiceDirectory(address, connString, "/bztest");
         return sd;
     }
 
@@ -64,7 +64,7 @@ public class ConcurrencyTest {
 
             try {
 
-                ServiceDirectory sd = new ZookeeperServiceDirectory(new SocketRpcServerAddress("127.0.0.1", 3400 + client), connString);
+                ServiceDirectory sd = new ZookeeperServiceDirectory(new SocketRpcServerAddress("127.0.0.1", 3400 + client), connString, "/bztest");
                 sd.start();
 
                 RpcClient cli = new SocketRpcClient(new FstRPCRequestCodec(), 10000);

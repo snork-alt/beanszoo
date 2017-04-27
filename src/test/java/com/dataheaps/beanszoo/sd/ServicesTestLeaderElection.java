@@ -63,7 +63,7 @@ public class ServicesTestLeaderElection {
                 try {
                     SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + idx);
                     ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                            serverAddress, server.getConnectString(), 500
+                            serverAddress, server.getConnectString(), "/bztest", 500
                     );
                     serverSd.start();
                     serverSd.putService(new SampleSingleInstanceServiceImpl("service" + idx));
@@ -86,7 +86,7 @@ public class ServicesTestLeaderElection {
         RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
         SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 10090);
         ZookeeperServiceDirectory clientSd = new ZookeeperServiceDirectory(
-                serverAddress, server.getConnectString(),500
+                serverAddress, server.getConnectString(), "/bztest", 500
         );
         clientSd.start();
 

@@ -46,7 +46,7 @@ public class ZookeeperServiceDirectoryTest {
         for (int ctr=0;ctr<10;ctr++) {
 
             ZookeeperServiceDirectory sd = new ZookeeperServiceDirectory(
-                    new SocketRpcServerAddress("localhost", 9090 + ctr), server.getConnectString()
+                    new SocketRpcServerAddress("localhost", 9090 + ctr), server.getConnectString(), "/bztest"
             );
 
             String id = "SIMPLE" + ctr;
@@ -72,7 +72,7 @@ public class ZookeeperServiceDirectoryTest {
         }
 
         ZookeeperServiceDirectory sdLookup = new ZookeeperServiceDirectory(
-                new SocketRpcServerAddress("localhost", 9200), server.getConnectString()
+                new SocketRpcServerAddress("localhost", 9200), server.getConnectString(), "/bztest"
         );
         sdLookup.start();
 
@@ -98,7 +98,7 @@ public class ZookeeperServiceDirectoryTest {
         for (int ctr=0;ctr<10;ctr++) {
 
             ZookeeperServiceDirectory sd = new ZookeeperServiceDirectory(
-                    new SocketRpcServerAddress("localhost", 9090 + ctr), server.getConnectString()
+                    new SocketRpcServerAddress("localhost", 9090 + ctr), server.getConnectString(), "/bztest"
             );
             sd.start();
 
@@ -128,7 +128,7 @@ public class ZookeeperServiceDirectoryTest {
         ExecutorService executorService = Executors.newCachedThreadPool();
 
         ZookeeperServiceDirectory sdLookup = new ZookeeperServiceDirectory(
-                new SocketRpcServerAddress("localhost", 12000), server.getConnectString()
+                new SocketRpcServerAddress("localhost", 12000), server.getConnectString(), "/bztest"
         );
         sdLookup.start();
 
@@ -141,7 +141,7 @@ public class ZookeeperServiceDirectoryTest {
             executorService.submit(() -> {
                 try {
                     ZookeeperServiceDirectory sd = new ZookeeperServiceDirectory(
-                            new SocketRpcServerAddress("localhost", 9090 + idx), server.getConnectString()
+                            new SocketRpcServerAddress("localhost", 9090 + idx), server.getConnectString(), "/bztest"
                     );
 
                     if (idx % 2 == 0)
@@ -227,13 +227,13 @@ public class ZookeeperServiceDirectoryTest {
         List<ServiceDirectory> sds = new ArrayList<>();
 
         ZookeeperServiceDirectory sd0 = new ZookeeperServiceDirectory(
-                new SocketRpcServerAddress("localhost", 9090), server.getConnectString()
+                new SocketRpcServerAddress("localhost", 9090), server.getConnectString(), "/bztest"
         );
         sd0.putService("id0", new ServiceWithMetadataImpl("m0"));
         sd0.start();
 
         ZookeeperServiceDirectory sd1 = new ZookeeperServiceDirectory(
-                new SocketRpcServerAddress("localhost", 9091), server.getConnectString()
+                new SocketRpcServerAddress("localhost", 9091), server.getConnectString(), "/bztest"
         );
         sd1.putService("id1", new ServiceWithMetadataImpl("m1"));
         sd1.start();
@@ -241,7 +241,7 @@ public class ZookeeperServiceDirectoryTest {
         Thread.sleep(1000);
 
         ZookeeperServiceDirectory sdLookup = new ZookeeperServiceDirectory(
-                new SocketRpcServerAddress("localhost", 9200), server.getConnectString()
+                new SocketRpcServerAddress("localhost", 9200), server.getConnectString(), "/bztest"
         );
         sdLookup.start();
         Services services = new Services(null, sdLookup);
@@ -259,7 +259,7 @@ public class ZookeeperServiceDirectoryTest {
         TestingServer server = new TestingServer(true);
 
         ZookeeperServiceDirectory sd0 = new ZookeeperServiceDirectory(
-                new SocketRpcServerAddress("localhost", 9090), server.getConnectString()
+                new SocketRpcServerAddress("localhost", 9090), server.getConnectString(), "/bztest"
         );
         sd0.putService("id0", new SampleServiceImpl2());
         sd0.start();
@@ -272,7 +272,7 @@ public class ZookeeperServiceDirectoryTest {
         assert (services.getService(SampleService.class, "bogusImpl") != null);
 
         ZookeeperServiceDirectory sdLookup = new ZookeeperServiceDirectory(
-                new SocketRpcServerAddress("localhost", 9200), server.getConnectString()
+                new SocketRpcServerAddress("localhost", 9200), server.getConnectString(), "/bztest"
         );
         sdLookup.start();
         Services services1 = new Services(null, sdLookup);

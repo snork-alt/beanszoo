@@ -39,7 +39,7 @@ public class ServicesTest {
 
         SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090);
         ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                serverAddress, server.getConnectString()
+                serverAddress, server.getConnectString(), "/bztest"
         );
         serverSd.start();
         serverSd.putService("id1", new SampleServiceImpl1());
@@ -55,7 +55,7 @@ public class ServicesTest {
         RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
         SocketRpcServerAddress clientAddress = new SocketRpcServerAddress("localhost", 9091);
         ZookeeperServiceDirectory clientSd = new ZookeeperServiceDirectory(
-                clientAddress, server.getConnectString()
+                clientAddress, server.getConnectString(), "/bztest"
         );
         clientSd.start();
         Thread.sleep(1000);
@@ -121,7 +121,7 @@ public class ServicesTest {
 
             SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + ctr);
             ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                    serverAddress, server.getConnectString()
+                    serverAddress, server.getConnectString(), "/bztest"
             );
             serverSd.start();
             serverSd.putService(new SampleService2Impl("service" + ctr));
@@ -168,7 +168,7 @@ public class ServicesTest {
 
             SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + ctr);
             ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                    serverAddress, server.getConnectString()
+                    serverAddress, server.getConnectString(), "/bztest"
             );
             serverSd.start();
             serverSd.putService(new SampleService2Impl("service" + ctr));
@@ -184,7 +184,7 @@ public class ServicesTest {
         RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
         SocketRpcServerAddress clientAddress = new SocketRpcServerAddress("localhost", 10091);
         ZookeeperServiceDirectory clientSd = new ZookeeperServiceDirectory(
-                clientAddress, server.getConnectString()
+                clientAddress, server.getConnectString(), "/bztest"
         );
         clientSd.start();
         Thread.sleep(1000);
@@ -219,7 +219,7 @@ public class ServicesTest {
 
             SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + ctr);
             ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                    serverAddress, server.getConnectString()
+                    serverAddress, server.getConnectString(), "/bztest"
             );
             serverSd.start();
             serverSd.putService(new SampleRRService2Impl("service" + ctr));
@@ -269,7 +269,7 @@ public class ServicesTest {
 
             SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + ctr);
             ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                    serverAddress, server.getConnectString()
+                    serverAddress, server.getConnectString(), "/bztest"
             );
             serverSd.start();
             serverSd.putService(new SampleRRService2Impl("service" + ctr));

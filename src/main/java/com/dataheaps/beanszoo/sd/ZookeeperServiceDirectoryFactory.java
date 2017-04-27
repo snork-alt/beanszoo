@@ -12,9 +12,10 @@ public class ZookeeperServiceDirectoryFactory implements ServiceDirectoryFactory
 
     @Getter @Setter @NonNull String connectionString;
     @Getter @Setter @NonNull int timeout;
+    @Getter @Setter @NonNull String basepath = "/beanszoo";
 
     @Override
     public ServiceDirectory create(RpcServerAddress address) {
-        return new ZookeeperServiceDirectory(address, connectionString, timeout);
+        return new ZookeeperServiceDirectory(address, connectionString, basepath, timeout);
     }
 }
