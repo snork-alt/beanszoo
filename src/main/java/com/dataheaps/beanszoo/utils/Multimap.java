@@ -39,13 +39,17 @@ public class Multimap<K, V> {
     }
 
     synchronized public Set<V> get(K key) {
-        return root.get(key);
+        Set<V> res = root.get(key);
+        if (res == null) return Collections.EMPTY_SET;
+        return res;
     }
 
     synchronized public void remove(K key, V value) {
         Set<V> values = root.get(key);
         if (values == null) return;
         values.remove(value);
+        if (values.isEmpty())
+            root.remove(key);
     }
 
     synchronized public void removeAll(K key) {

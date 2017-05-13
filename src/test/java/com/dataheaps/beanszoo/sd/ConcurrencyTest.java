@@ -19,10 +19,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by matteopelati on 25/10/15.
  */
-public class Example {
+public class ConcurrencyTest {
 
-    static CountDownLatch latch = new CountDownLatch(3);
+    static final int CLIENTS = 2;
+    static final int CLIENT_THREADS = 5;
+    static final int REQUEST_PER_THREAD = 5000;
 
+    static CountDownLatch latch = new CountDownLatch(CLIENTS*CLIENT_THREADS + 1);
+    static AtomicInteger count = new AtomicInteger(0);
 
     public static interface ISmapleService {
         public String sayHello(String name);
@@ -43,7 +47,7 @@ public class Example {
     }
 
     static ServiceDirectory createServiceDirectory(String connString, RpcServerAddress address) throws Exception {
-        ZookeeperServiceDirectory sd = new ZookeeperServiceDirectory(address, connString);
+        ZookeeperServiceDirectory sd = new ZookeeperServiceDirectory(address, connString, "/bztest");
         return sd;
     }
 
@@ -60,7 +64,7 @@ public class Example {
 
             try {
 
-                ServiceDirectory sd = new ZookeeperServiceDirectory(new SocketRpcServerAddress("127.0.0.1", 3400 + client), connString);
+                ServiceDirectory sd = new ZookeeperServiceDirectory(new SocketRpcServerAddress("127.0.0.1", 3400 + client), connString, "/bztest");
                 sd.start();
 
                 RpcClient cli = new SocketRpcClient(new FstRPCRequestCodec(), 10000);
@@ -69,14 +73,15 @@ public class Example {
                 ISmapleService svc = services.getService(ISmapleService.class);
 
                 ExecutorService executorService = Executors.newFixedThreadPool(20);
-                for (int ctr = 0; ctr < 10; ctr++) {
+                for (int ctr = 0; ctr < CLIENT_THREADS; ctr++) {
                     executorService.submit(new Runnable() {
                         @Override
                         public void run() {
-                            for (int i = 0; i < 10000; i++) {
+                            for (int i = 0; i < REQUEST_PER_THREAD; i++) {
                                 try {
                                     String resp = svc.sayHello("Matteo");
                                     System.out.println("Client " + client + ": " + counter.incrementAndGet() + " " + resp);
+                                    count.incrementAndGet();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -86,6 +91,7 @@ public class Example {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
+                            latch.countDown();
                         }
                     });
                 }
@@ -94,7 +100,7 @@ public class Example {
                 throw new RuntimeException(e);
             }
             finally {
-                latch.countDown();
+
             }
 
         }
@@ -102,7 +108,8 @@ public class Example {
 
 
 
-    public static void main(String[] args) throws Exception {
+    @Test
+    public void testConcurrency() throws Exception {
 
 
         TestingServer testServer = new TestingServer();
@@ -131,11 +138,11 @@ public class Example {
         executors.submit(() -> {
             try {
 
-                Thread.sleep(5000);
+                Thread.sleep(200);
                 serviceDirectories.get(0).stop();
                 serviceDirectories.get(1).stop();
 
-                Thread.sleep(2000);
+                Thread.sleep(200);
                 serviceDirectories.get(0).start();
                 serviceDirectories.get(1).start();
                 for (int ctr = 4; ctr < 10; ctr++) {
@@ -148,7 +155,7 @@ public class Example {
                     server.start();
                     sd.start();
                 }
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             }
             catch (Exception e) {
                 throw new RuntimeException(e);
@@ -159,6 +166,8 @@ public class Example {
         });
 
         latch.await();
+
+        assert(count.get() == REQUEST_PER_THREAD*CLIENT_THREADS*CLIENTS);
 
         for (RpcServer server : servers)
             server.stop();

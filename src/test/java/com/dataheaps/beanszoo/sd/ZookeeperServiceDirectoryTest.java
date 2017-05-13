@@ -2,6 +2,7 @@ package com.dataheaps.beanszoo.sd;
 
 import com.dataheaps.beanszoo.rpc.AutoSocketRpcServerAddress;
 import com.dataheaps.beanszoo.rpc.SocketRpcServerAddress;
+import com.google.common.collect.ImmutableSet;
 import org.apache.curator.test.TestingServer;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class ZookeeperServiceDirectoryTest {
         }
     }
 
-    @Name("impl2")
+    @Name({"impl2", "bogusImpl"})
     public static class SampleServiceImpl2 implements SampleService {
         @Override
         public String test() {
@@ -45,7 +46,7 @@ public class ZookeeperServiceDirectoryTest {
         for (int ctr=0;ctr<10;ctr++) {
 
             ZookeeperServiceDirectory sd = new ZookeeperServiceDirectory(
-                    new SocketRpcServerAddress("localhost", 9090 + ctr), server.getConnectString()
+                    new SocketRpcServerAddress("localhost", 9090 + ctr), server.getConnectString(), "/bztest"
             );
 
             String id = "SIMPLE" + ctr;
@@ -71,7 +72,7 @@ public class ZookeeperServiceDirectoryTest {
         }
 
         ZookeeperServiceDirectory sdLookup = new ZookeeperServiceDirectory(
-                new SocketRpcServerAddress("localhost", 9200), server.getConnectString()
+                new SocketRpcServerAddress("localhost", 9200), server.getConnectString(), "/bztest"
         );
         sdLookup.start();
 
@@ -97,7 +98,7 @@ public class ZookeeperServiceDirectoryTest {
         for (int ctr=0;ctr<10;ctr++) {
 
             ZookeeperServiceDirectory sd = new ZookeeperServiceDirectory(
-                    new SocketRpcServerAddress("localhost", 9090 + ctr), server.getConnectString()
+                    new SocketRpcServerAddress("localhost", 9090 + ctr), server.getConnectString(), "/bztest"
             );
             sd.start();
 
@@ -127,7 +128,7 @@ public class ZookeeperServiceDirectoryTest {
         ExecutorService executorService = Executors.newCachedThreadPool();
 
         ZookeeperServiceDirectory sdLookup = new ZookeeperServiceDirectory(
-                new SocketRpcServerAddress("localhost", 12000), server.getConnectString()
+                new SocketRpcServerAddress("localhost", 12000), server.getConnectString(), "/bztest"
         );
         sdLookup.start();
 
@@ -140,7 +141,7 @@ public class ZookeeperServiceDirectoryTest {
             executorService.submit(() -> {
                 try {
                     ZookeeperServiceDirectory sd = new ZookeeperServiceDirectory(
-                            new SocketRpcServerAddress("localhost", 9090 + idx), server.getConnectString()
+                            new SocketRpcServerAddress("localhost", 9090 + idx), server.getConnectString(), "/bztest"
                     );
 
                     if (idx % 2 == 0)
@@ -200,5 +201,87 @@ public class ZookeeperServiceDirectoryTest {
 
 
     }
+
+
+    static interface ServiceWithMetadata {}
+
+    static class ServiceWithMetadataImpl implements ServiceWithMetadata, HasMetadata {
+
+        String metadata;
+
+        public ServiceWithMetadataImpl(String metadata) {
+            this.metadata = metadata;
+        }
+
+        @Override
+        public Object getMetadata() {
+            return metadata;
+        }
+    }
+
+
+    @Test
+    public void testMetadata() throws Exception {
+
+        TestingServer server = new TestingServer(true);
+        List<ServiceDirectory> sds = new ArrayList<>();
+
+        ZookeeperServiceDirectory sd0 = new ZookeeperServiceDirectory(
+                new SocketRpcServerAddress("localhost", 9090), server.getConnectString(), "/bztest"
+        );
+        sd0.putService("id0", new ServiceWithMetadataImpl("m0"));
+        sd0.start();
+
+        ZookeeperServiceDirectory sd1 = new ZookeeperServiceDirectory(
+                new SocketRpcServerAddress("localhost", 9091), server.getConnectString(), "/bztest"
+        );
+        sd1.putService("id1", new ServiceWithMetadataImpl("m1"));
+        sd1.start();
+
+        Thread.sleep(1000);
+
+        ZookeeperServiceDirectory sdLookup = new ZookeeperServiceDirectory(
+                new SocketRpcServerAddress("localhost", 9200), server.getConnectString(), "/bztest"
+        );
+        sdLookup.start();
+        Services services = new Services(null, sdLookup);
+
+        Thread.sleep(1000);
+        Set<Object> m = services.getServicesMetadata(ServiceWithMetadata.class);
+
+        assert (m.equals(ImmutableSet.of("m0", "m1")));
+
+    }
+
+    @Test
+    public void testNamedImpl() throws Exception {
+
+        TestingServer server = new TestingServer(true);
+
+        ZookeeperServiceDirectory sd0 = new ZookeeperServiceDirectory(
+                new SocketRpcServerAddress("localhost", 9090), server.getConnectString(), "/bztest"
+        );
+        sd0.putService("id0", new SampleServiceImpl2());
+        sd0.start();
+
+        Services services = new Services(null, sd0);
+
+        Thread.sleep(500);
+
+        assert (services.getService(SampleService.class, "impl2") != null);
+        assert (services.getService(SampleService.class, "bogusImpl") != null);
+
+        ZookeeperServiceDirectory sdLookup = new ZookeeperServiceDirectory(
+                new SocketRpcServerAddress("localhost", 9200), server.getConnectString(), "/bztest"
+        );
+        sdLookup.start();
+        Services services1 = new Services(null, sdLookup);
+
+        Thread.sleep(500);
+
+        assert (services1.getService(SampleService.class, "impl2") != null);
+        assert (services1.getService(SampleService.class, "bogusImpl") != null);
+    }
+    
 
 }

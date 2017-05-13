@@ -4,6 +4,7 @@ import com.dataheaps.beanszoo.rpc.RpcClient;
 import com.dataheaps.beanszoo.sd.ServiceDescriptor;
 import com.dataheaps.beanszoo.sd.ServiceDirectory;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -11,6 +12,11 @@ import java.util.List;
  */
 public interface Policy {
 
-    Object getServiceInstance(Class klass, String name, List<ServiceDescriptor> d, RpcClient client, ServiceDirectory services);
-
+    Object invoke(
+            Object proxy, Method method, Object[] args,
+            Class klass, String name,
+            List<ServiceDescriptor> d,
+            RpcClient rpcClient,
+            ServiceDirectory services
+    ) throws Throwable;
 }

@@ -87,7 +87,9 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
         for (String i: ifaces.keySet())
             runningLocalInterfaces.put(i, service);
 
-        allRunningServices.put(id, getIdLocalServiceDescriptor(id));
+        Object metadata = (service instanceof HasMetadata) ? ((HasMetadata) service).getMetadata() : null;
+
+        allRunningServices.put(id, getIdLocalServiceDescriptor(id, metadata));
         allRunningInterfaces.putAll(ifaces);
 
         return true;
@@ -130,33 +132,39 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
         }
     }
 
-    ServiceDescriptor getIdLocalServiceDescriptor(String id) {
-        return new ServiceDescriptor(localAddress.geAddressString(), id, null, null, id, null);
+    ServiceDescriptor getIdLocalServiceDescriptor(String id, Object metadata) {
+
+        // FIXME: Make sure the same service type (the implementation, meaning same class) is not registered twice in a local ServiceDirectory
+        return new ServiceDescriptor(localAddress.geAddressString(), id, null, null, id, metadata);
     }
 
     Map<String, ServiceDescriptor> getInterfaceLocalServiceDescriptors(Object service, String id) {
 
         Map<String, ServiceDescriptor> serviceDescriptors = new HashMap<>();
-        Name name = service.getClass().getAnnotation(Name.class);
-        InvocationPolicy policy = service.getClass().getAnnotation(InvocationPolicy.class);
-        ClassUtils.getAllInterfaces(service.getClass()).forEach(
+        Name names = service.getClass().getAnnotation(Name.class);
+        Object metadata = (service instanceof HasMetadata) ? ((HasMetadata) service).getMetadata() : null;
+
+        Set<Class> allClasses = new HashSet<>();
+        allClasses.addAll(ClassUtils.getAllInterfaces(service.getClass()));
+
+        allClasses.forEach(
                 c -> {
                     serviceDescriptors.put(
                             c.getCanonicalName(),
                             new ServiceDescriptor(
-                                    localAddress.geAddressString(), null, c, null, c.getCanonicalName(),
-                                    policy == null ? DefaultPolicy : policy.value()
+                                    localAddress.geAddressString(), null, c, null, c.getCanonicalName(), metadata
                             )
                     );
-                    if (name != null) {
-                        serviceDescriptors.put(
-                            c.getCanonicalName() + "!" + name.value(),
-                            new ServiceDescriptor(
-                                    localAddress.geAddressString(), null, c, name.value(),
-                                    c.getCanonicalName() + "!" + name.value(),
-                                    policy == null ? DefaultPolicy : policy.value()
-                            )
-                        );
+                    if (names != null) {
+                        for (String name: names.value()) {
+                            serviceDescriptors.put(
+                                    c.getCanonicalName() + "!" + name,
+                                    new ServiceDescriptor(
+                                            localAddress.geAddressString(), null, c, name,
+                                            c.getCanonicalName() + "!" + name, metadata
+                                    )
+                            );
+                        }
                     }
                 }
         );

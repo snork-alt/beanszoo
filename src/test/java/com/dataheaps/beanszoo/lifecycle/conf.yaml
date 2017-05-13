@@ -1,0 +1,27 @@
+
+rpcFactory: !!com.dataheaps.beanszoo.rpc.SocketRpcFactory
+  codec: !!com.dataheaps.beanszoo.codecs.FstRPCRequestCodec {}
+
+sdFactory: !!com.dataheaps.beanszoo.sd.ZookeeperServiceDirectoryFactory
+  connectionString: !property zkQuorum
+  timeout: 5000
+
+roles:
+  - id: role0
+    services:
+      - !instance
+          of: com.dataheaps.beanszoo.lifecycle.SimpleService0Impl
+          with: {}
+  - id: role1
+    services:
+      - !instance
+          of: com.dataheaps.beanszoo.lifecycle.SimpleService1Impl
+          with: {}
+
+containers:
+  - id: container0
+    roles: [role0]
+    instances: 1
+  - id: container1
+    roles: [role1]
+    instances: 1

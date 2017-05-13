@@ -16,11 +16,13 @@ import static org.junit.Assert.assertEquals;
 public class ServicesTestPartitioned {
 
     public interface SamplePartitionedService {
+        @InvocationPolicy(PartitioningPolicy.class)
         @Partitioned List<String> process(@PartitionKey List<String> ls);
+
         String nonPartitioned();
     }
 
-    @InvocationPolicy(PartitioningPolicy.class)
+
     public static class SamplePartitionedServiceImpl implements SamplePartitionedService {
 
         String id;
@@ -57,7 +59,7 @@ public class ServicesTestPartitioned {
 
             SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + ctr);
             ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                    serverAddress, server.getConnectString()
+                    serverAddress, server.getConnectString(), "/bztest"
             );
             serverSd.start();
             serverSd.putService(new SamplePartitionedServiceImpl("service" + ctr));
@@ -109,7 +111,7 @@ public class ServicesTestPartitioned {
 
             SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + ctr);
             ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                    serverAddress, server.getConnectString()
+                    serverAddress, server.getConnectString(), "/bztest"
             );
             serverSd.start();
             serverSd.putService(new SamplePartitionedServiceImpl("service" + ctr));
@@ -160,7 +162,7 @@ public class ServicesTestPartitioned {
 
             SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + ctr);
             ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                    serverAddress, server.getConnectString()
+                    serverAddress, server.getConnectString(), "/bztest"
             );
             serverSd.start();
             serverSd.putService(new SamplePartitionedServiceImpl("service" + ctr));

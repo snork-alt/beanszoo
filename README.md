@@ -1,5 +1,5 @@
 
-# BeansZoo
+![alt text](https://raw.githubusercontent.com/pelatimtt/beanszoo/services/logo.png "BeansZoo")
 
 
 BeansZoo is a framework that enables to distribute Java services across multiple
