@@ -4,13 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.dataheaps</groupId>
-    <artifactId>beanszoo</artifactId>
-    <packaging>pom</packaging>
+
+    <parent>
+        <artifactId>beanszoo</artifactId>
+        <groupId>com.dataheaps</groupId>
+        <version>0.2.0</version>
+    </parent>
+
+    <artifactId>beanszoo-core</artifactId>
     <version>0.2.15</version>
-    <modules>
-        <module>core</module>
-    </modules>
 
     <dependencies>
         <dependency>
@@ -91,35 +93,6 @@
             </exclusions>
         </dependency>
 
-
-
-
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <distributionManagement>
-        <repository>
-            <id>myMavenRepo.write</id>
-            <url>${myMavenRepo.write.url}</url>
-        </repository>
-        <snapshotRepository>
-            <id>myMavenRepo.write</id>
-            <url>${myMavenRepo.write.url}</url>
-        </snapshotRepository>
-    </distributionManagement>
-
 
 </project>
