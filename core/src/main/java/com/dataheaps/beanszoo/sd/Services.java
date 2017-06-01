@@ -16,6 +16,9 @@ import java.util.stream.Stream;
  * Created by matteopelati on 26/10/15.
  */
 
+/**
+ *  Class used to register, unregister and query services
+ */
 public class Services {
 
     static final SingleInstancePolicy singleInstancePolicy = new SingleInstancePolicy();
@@ -23,15 +26,32 @@ public class Services {
     final RpcClient rpcClient;
     final ServiceDirectory services;
 
+    /**
+     * Initialises a new service manager that can be used for service registration and querying
+     *
+     * @param rpcClient An implementation of an RPC client that will be used when invoking remote services
+     * @param services A service directory implementation which keeps track of the registered services (local and remote)
+     */
     public Services(RpcClient rpcClient, ServiceDirectory services) {
         this.rpcClient = rpcClient;
         this.services = services;
     }
 
+    /**
+     * Returns teh underlying service directory used by the service manager
+     * @return the service directory implementation
+     */
     public ServiceDirectory getServiceDirectory() {
         return services;
     }
 
+    /**
+     * Obtains a reference to a service implementation (local or remote)
+     *
+     * @param id The unique identifier of teh service
+     * @param klass The interface implemented by teh requested service
+     * @return Reference to the service implementation, which can me local or remote
+     */
     public <T> T getService(String id, Class<T> klass) {
 
         ServiceDescriptor d = services.getService(id);
@@ -78,7 +98,12 @@ public class Services {
         );
     }
 
-
+    /**
+     * Obtains a reference to a service implementation (local or remote)
+     *
+     * @param klass The interface implemented by teh requested service
+     * @return Reference to the service implementation, which can me local or remote
+     */
     public <T> T getService(Class<T> klass) {
 
         Set<ServiceDescriptor> d = services.getServicesByType(klass, null);
@@ -87,6 +112,13 @@ public class Services {
 
     }
 
+    /**
+     * Obtains a reference to a service implementation (local or remote)
+     *
+     * @param klass The interface implemented by teh requested service
+     * @param name The name of the service. Services can be named using the Name annotation
+     * @return Reference to the service implementation, which can me local or remote
+     */
     public <T> T getService(Class<T> klass, String name) {
 
         Set<ServiceDescriptor> d = services.getServicesByType(klass, name);

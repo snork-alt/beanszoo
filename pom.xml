@@ -11,7 +11,12 @@
 
     <modules>
         <module>core</module>
+        <module>web</module>
     </modules>
+
+    <dependencies>
+
+    </dependencies>
 
     <build>
         <pluginManagement>

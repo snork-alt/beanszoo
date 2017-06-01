@@ -1,5 +1,6 @@
 package com.dataheaps.beanszoo.lifecycle;
 
+import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
@@ -30,13 +31,27 @@ public class YamlConfigurationReader implements ConfigurationReader {
         class EnvConstruct extends AbstractConstruct {
 
             public Object construct(Node node) {
-                String varName = (String) constructScalar((ScalarNode) node);
-                String ret = props.getProperty(varName);
-                if (ret == null)
-                    ret = System.getenv().get(varName);
-                if (ret == null)
-                    throw new IllegalArgumentException("Environment variable " + varName + " is not defined");
-                return ret;
+                try {
+
+                    String varName = (String) constructScalar((ScalarNode) node);
+
+                    String[] tokens = varName.split(" ", 2);
+                    if (tokens.length > 1) varName = tokens[1];
+
+                    String ret = props.getProperty(varName);
+                    if (ret == null)
+                        ret = System.getenv().get(varName);
+                    if (ret == null)
+                        throw new IllegalArgumentException("Environment variable " + varName + " is not defined");
+
+                    if (tokens.length == 1)
+                        return ret;
+                    else
+                        return ConvertUtils.convert(ret, Class.forName(tokens[0]));
+                }
+                catch (ClassNotFoundException e) {
+                    throw new IllegalArgumentException(e);
+                }
             }
         }
 
