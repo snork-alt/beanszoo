@@ -38,9 +38,9 @@ public class YamlConfigurationReader implements ConfigurationReader {
                     String[] tokens = varName.split(" ", 2);
                     if (tokens.length > 1) varName = tokens[1];
 
-                    String ret = props.getProperty(varName);
+                    String ret = System.getenv().get(varName);
                     if (ret == null)
-                        ret = System.getenv().get(varName);
+                        ret = props.getProperty(varName);
                     if (ret == null)
                         throw new IllegalArgumentException("Environment variable " + varName + " is not defined");
 
