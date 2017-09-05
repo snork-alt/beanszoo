@@ -152,6 +152,8 @@ public class ServicesTest {
         for (ServiceDirectory s : sdl)
             s.stop();
 
+        server.stop();
+
     }
 
 
