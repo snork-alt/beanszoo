@@ -8,6 +8,7 @@ import org.apache.curator.test.TestingServer;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,7 +82,7 @@ public class LifeCycleTest {
         YamlConfigurationReader reader = new YamlConfigurationReader();
         reader.props = p;
         String path = new File("src/test/java/com/dataheaps/beanszoo/lifecycle/conf.yaml").getAbsolutePath();
-        Configuration conf = reader.load("file:" + path);
+        Configuration conf = reader.load(new FileInputStream(path), null);
 
         LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf);
         lcm.start();
@@ -109,7 +110,7 @@ public class LifeCycleTest {
         YamlConfigurationReader reader = new YamlConfigurationReader();
         reader.props = p;
         String path = new File("src/test/java/com/dataheaps/beanszoo/lifecycle/conf_nested.yaml").getAbsolutePath();
-        Configuration conf = reader.load("file:" + path);
+        Configuration conf = reader.load(new FileInputStream(path), null);
 
         LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf);
         lcm.start();

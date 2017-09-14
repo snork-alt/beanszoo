@@ -111,23 +111,15 @@ public class YamlConfigurationReader implements ConfigurationReader {
     Properties props = new Properties();
 
     @Override
-    public Configuration load(String path) throws Exception {
+    public Configuration load(InputStream yamlStream, InputStream propsStream) throws Exception {
 
-        FileSystemManager fs = VFS.getManager();
-        FileObject yamlFile = fs.resolveFile(path);
-
-        FileObject propsFile = fs.resolveFile(FilenameUtils.removeExtension(path) + ".properties");
-        if (propsFile.exists()) {
-            InputStream is = propsFile.getContent().getInputStream();
-            props.load(is);
-            is.close();
-        }
+        if (propsStream != null)
+            props.load(propsStream);
 
         YamlConstructor ctor = new YamlConstructor(props);
         Yaml loader = new Yaml(ctor);
         loader.setBeanAccess(BeanAccess.PROPERTY);
 
-        InputStream yamlStream = yamlFile.getContent().getInputStream();
         Configuration config = loader.loadAs(yamlStream, Configuration.class);
         yamlStream.close();
 
