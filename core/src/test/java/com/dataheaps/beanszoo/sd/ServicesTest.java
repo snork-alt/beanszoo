@@ -33,6 +33,21 @@ public class ServicesTest {
     }
 
     @Test
+    public void basicLocalInstanceInvocation() throws Exception {
+
+        LocalServiceDirectory serverSd = new LocalServiceDirectory();
+        serverSd.start();
+        serverSd.putService("id1", new SampleServiceImpl1());
+
+        RpcClient localRpcClient = new LocalRpcClient();
+        Services services = new Services(localRpcClient, serverSd);
+
+        SampleService remote = services.getService("id1", SampleService.class);
+        assert(remote.test() == 1);
+
+    }
+
+    @Test
     public void basicInstanceInvocation() throws Exception {
 
         TestingServer server = new TestingServer(true);

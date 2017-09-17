@@ -111,10 +111,9 @@ public class YamlConfigurationReader implements ConfigurationReader {
     Properties props = new Properties();
 
     @Override
-    public Configuration load(InputStream yamlStream, InputStream propsStream) throws Exception {
+    public Configuration load(InputStream yamlStream, Properties p) throws Exception {
 
-        if (propsStream != null)
-            props.load(propsStream);
+        this.props = p;
 
         YamlConstructor ctor = new YamlConstructor(props);
         Yaml loader = new Yaml(ctor);
