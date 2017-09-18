@@ -48,42 +48,50 @@ public class ServicesTestBroadcast {
         List<ServiceDirectory> sdl = new ArrayList<>();
         List<List<String>> results = new ArrayList<>();
 
-        for (int ctr=0;ctr<10;ctr++) {
+        try {
 
-            List<String> res = new CopyOnWriteArrayList<>();
-            results.add(res);
+            for (int ctr = 0; ctr < 10; ctr++) {
 
-            SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + ctr);
-            ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                    serverAddress, server.getConnectString(), "/bztest"
-            );
-            serverSd.start();
-            serverSd.putService(new SampleBroadcastServiceImpl(res));
+                List<String> res = new CopyOnWriteArrayList<>();
+                results.add(res);
 
-            RpcServer rpcServer = new SocketRpcServer(serverAddress, new FstRPCRequestCodec(), serverSd);
-            rpcServer.start();
-            servers.add(rpcServer);
-            sdl.add(serverSd);
+                SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 30090 + ctr);
+                ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
+                        serverAddress, server.getConnectString(), "/bztest"
+                );
+                serverSd.start();
+                serverSd.putService(new SampleBroadcastServiceImpl(res));
+
+                RpcServer rpcServer = new SocketRpcServer(serverAddress, new FstRPCRequestCodec(), serverSd);
+                rpcServer.start();
+                servers.add(rpcServer);
+                sdl.add(serverSd);
+            }
+
+
+            RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
+            Thread.sleep(500);
+
+            Services clientServices = new Services(rpcClient, sdl.get(0));
+            SampleBroadcastService svc = clientServices.getService(SampleBroadcastService.class);
+
+            for (int ctr = 0; ctr < 5; ctr++) {
+                svc.process("test" + ctr);
+            }
+
+            assert (results.stream().allMatch(e -> e.size() == 5));
+            assert (results.stream().allMatch(e -> e.equals(ImmutableList.of("test0", "test1", "test2", "test3", "test4"))));
+
         }
+        finally {
 
+            for (RpcServer s : servers)
+                s.stop();
+            for (ServiceDirectory s : sdl)
+                s.stop();
 
-        RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
-        Thread.sleep(500);
-
-        Services clientServices = new Services(rpcClient, sdl.get(0));
-        SampleBroadcastService svc = clientServices.getService(SampleBroadcastService.class);
-
-        for (int ctr=0;ctr<5;ctr++) {
-            svc.process("test" + ctr);
+            server.stop();
         }
-
-        assert (results.stream().allMatch(e -> e.size() == 5));
-        assert (results.stream().allMatch(e -> e.equals(ImmutableList.of("test0", "test1", "test2", "test3", "test4"))));
-
-        for (RpcServer s : servers)
-            s.stop();
-        for (ServiceDirectory s : sdl)
-            s.stop();
 
     }
 

@@ -20,6 +20,8 @@ import java.util.Properties;
 public class LifeCycleTest {
 
 
+
+
     @Test
     public void testProgrammaticConfig() throws Exception {
 
@@ -82,7 +84,7 @@ public class LifeCycleTest {
         YamlConfigurationReader reader = new YamlConfigurationReader();
         reader.props = p;
         String path = new File("src/test/java/com/dataheaps/beanszoo/lifecycle/conf.yaml").getAbsolutePath();
-        Configuration conf = reader.load(new FileInputStream(path), null);
+        Configuration conf = reader.load(new FileInputStream(path), p);
 
         LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf);
         lcm.start();
@@ -110,7 +112,7 @@ public class LifeCycleTest {
         YamlConfigurationReader reader = new YamlConfigurationReader();
         reader.props = p;
         String path = new File("src/test/java/com/dataheaps/beanszoo/lifecycle/conf_nested.yaml").getAbsolutePath();
-        Configuration conf = reader.load(new FileInputStream(path), null);
+        Configuration conf = reader.load(new FileInputStream(path), p);
 
         LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf);
         lcm.start();

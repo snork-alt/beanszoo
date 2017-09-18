@@ -56,67 +56,71 @@ public class ServicesTestLeaderElection {
         Map<String, ServiceDirectory> sdl = new ConcurrentHashMap<>();
         List<Thread> threads = Collections.synchronizedList(new ArrayList<>());
 
-        for (int ctr=0;ctr<20;ctr++) {
+        try {
 
-            int idx = ctr;
-            threads.add(new Thread(() -> {
-                try {
-                    SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090 + idx);
-                    ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
-                            serverAddress, server.getConnectString(), "/bztest", 500
-                    );
-                    serverSd.start();
-                    serverSd.putService(new SampleSingleInstanceServiceImpl("service" + idx));
+            for (int ctr = 0; ctr < 20; ctr++) {
 
-                    RpcServer rpcServer = new SocketRpcServer(serverAddress, new FstRPCRequestCodec(), serverSd);
-                    rpcServer.start();
-                    servers.put("service" + idx, rpcServer);
-                    sdl.put("service" + idx, serverSd);
-                }
-                catch (Exception e) {
+                int idx = ctr;
+                threads.add(new Thread(() -> {
+                    try {
+                        SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 30090 + idx);
+                        ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
+                                serverAddress, server.getConnectString(), "/bztest", 500
+                        );
+                        serverSd.start();
+                        serverSd.putService(new SampleSingleInstanceServiceImpl("service" + idx));
 
-                }
-            }));
-        }
+                        RpcServer rpcServer = new SocketRpcServer(serverAddress, new FstRPCRequestCodec(), serverSd);
+                        rpcServer.start();
+                        servers.put("service" + idx, rpcServer);
+                        sdl.put("service" + idx, serverSd);
+                    } catch (Exception e) {
 
-        for (Thread t: threads)
-            t.start();
-
-
-        RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
-        SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 10090);
-        ZookeeperServiceDirectory clientSd = new ZookeeperServiceDirectory(
-                serverAddress, server.getConnectString(), "/bztest", 500
-        );
-        clientSd.start();
-
-
-        for (int ctr=0;ctr<10;ctr++) {
-
-            Thread.sleep(1000);
-
-            Services clientServices = new Services(rpcClient, clientSd);
-            SampleSingleInstanceService svc = clientServices.getService(SampleSingleInstanceService.class);
-
-            Set<String> invoked = new HashSet<>();
-            for (int i=0;i<10;i++) {
-                invoked.add(svc.test());
+                    }
+                }));
             }
 
-            assert (invoked.size() == 1 && sdl.keySet().contains(new ArrayList<>(invoked).get(0)));
+            for (Thread t : threads)
+                t.start();
 
-            String service = new ArrayList<>(invoked).get(0);
-            servers.remove(service).stop();
-            sdl.remove(service).stop();
 
+            RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
+            SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 40090);
+            ZookeeperServiceDirectory clientSd = new ZookeeperServiceDirectory(
+                    serverAddress, server.getConnectString(), "/bztest", 500
+            );
+            clientSd.start();
+
+
+            for (int ctr = 0; ctr < 10; ctr++) {
+
+                Thread.sleep(1000);
+
+                Services clientServices = new Services(rpcClient, clientSd);
+                SampleSingleInstanceService svc = clientServices.getService(SampleSingleInstanceService.class);
+
+                Set<String> invoked = new HashSet<>();
+                for (int i = 0; i < 10; i++) {
+                    invoked.add(svc.test());
+                }
+
+                assert (invoked.size() == 1 && sdl.keySet().contains(new ArrayList<>(invoked).get(0)));
+
+                String service = new ArrayList<>(invoked).get(0);
+                servers.remove(service).stop();
+                sdl.remove(service).stop();
+
+            }
         }
+        finally {
 
-
-        for (ServiceDirectory s : sdl.values()) {
-            s.stop();
-        }
-        for (RpcServer s : servers.values()) {
-            s.stop();
+            for (ServiceDirectory s : sdl.values()) {
+                s.stop();
+            }
+            for (RpcServer s : servers.values()) {
+                s.stop();
+            }
+            server.stop();
         }
 
     }
