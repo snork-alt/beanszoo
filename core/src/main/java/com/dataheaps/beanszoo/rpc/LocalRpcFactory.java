@@ -9,12 +9,12 @@ public class LocalRpcFactory implements RpcFactory<LocalRpcServerAddress> {
 
     @Override
     public RpcServer createServer(LocalRpcServerAddress address, ServiceDirectory sd) throws Exception {
-        return null;
+        return new LocalRpcServer();
     }
 
     @Override
     public RpcClient createClient() throws Exception {
-        return null;
+        return new LocalRpcClient();
     }
 
     @Override

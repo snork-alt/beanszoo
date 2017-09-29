@@ -10,6 +10,6 @@ public class LocalRpcClient implements RpcClient {
 
     @Override
     public Object invoke(ServiceDescriptor d, String method, Class[] argTypes, Object[] args) throws Exception {
-        throw new NotImplementedException();
+        return null;
     }
 }
