@@ -67,8 +67,6 @@ public class LifeCycleTest {
         for (String e: res)
             assert (e.equals(ZookeeperServiceDirectoryTest.SampleServiceImpl1.class.getCanonicalName()));
 
-
-
     }
 
     @Test

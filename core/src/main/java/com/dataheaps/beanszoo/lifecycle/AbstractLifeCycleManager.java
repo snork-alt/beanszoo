@@ -122,6 +122,11 @@ public abstract class AbstractLifeCycleManager {
             sd.putService(lc);
         }
 
+        if (containerConfig.getCommands() != null) {
+            for (Command cmd: containerConfig.getCommands())
+                cmd.run(services);
+        }
+
         return new Container(sd, rpcClient, rpcServer, serverAddress, services);
 
     }
