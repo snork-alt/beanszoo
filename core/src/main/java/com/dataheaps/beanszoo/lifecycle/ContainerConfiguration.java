@@ -13,4 +13,5 @@ public class ContainerConfiguration {
     String id;
     String[] roles;
     int instances;
+    Command[] commands;
 }
