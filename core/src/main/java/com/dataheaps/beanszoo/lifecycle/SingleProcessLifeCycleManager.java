@@ -18,20 +18,16 @@ public class SingleProcessLifeCycleManager extends AbstractLifeCycleManager {
 
     @Override
     public void start() throws Exception {
-
         for (ContainerConfiguration c : config.getContainers()) {
             if (c.getId().equals(containerId)) {
                 container = createContainer(c, config.getRoles(), config.getRpcFactory(), config.getSdFactory());
                 return;
             }
         }
-
     }
 
     @Override
     public void stop() throws Exception {
 
     }
-
-
 }
