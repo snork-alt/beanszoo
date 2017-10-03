@@ -4,6 +4,7 @@ import com.dataheaps.beanszoo.exceptions.BeansZooException;
 import com.dataheaps.beanszoo.lifecycle.Configuration;
 import com.dataheaps.beanszoo.lifecycle.ContainerConfiguration;
 import com.dataheaps.beanszoo.lifecycle.YarnLifeCycleManager;
+import com.google.common.base.Preconditions;
 
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.twill.api.TwillApplication;
@@ -20,7 +21,7 @@ import lombok.Setter;
  * @author chandras
  */
 @AllArgsConstructor @Getter @Setter
-public class YarnBeansZooApplication extends BeansZooApplication implements TwillApplication {
+public class YarnBeansZooApplication extends AbstractYarnBeansZooApplication implements TwillApplication {
 
     YarnConfiguration confYarn;
     Configuration config;
@@ -55,10 +56,15 @@ public class YarnBeansZooApplication extends BeansZooApplication implements Twil
 
     @Override
     public void start() throws BeansZooException {
-        TwillRunnerService runner = new YarnTwillRunnerService(confYarn, zkAddress);
+        runner = new YarnTwillRunnerService(confYarn, zkAddress);
         runner.start();
         preparer = runner.prepare(new YarnBeansZooApplication(confYarn,config,zkAddress,name));
         preparer.start();
+    }
+
+    public TwillRunnerService getRunner(){
+        Preconditions.checkNotNull(runner);
+        return runner;
     }
 
     @Override

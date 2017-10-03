@@ -14,11 +14,19 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.MiniYARNCluster;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fifo.FifoScheduler;
+import org.apache.twill.api.TwillController;
+import org.apache.twill.api.TwillRunResources;
+import org.apache.twill.api.TwillRunner;
 import org.junit.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 /**
  * @author chandras
@@ -99,6 +107,14 @@ public class YarnLifeCycleTest {
         ybza.start();
         ContainerConfiguration [] cc = ybza.getConfig().getContainers();
         int countOfInnst = 0;
+        Iterable<TwillRunner.LiveInfo> it = ybza.getRunner().lookupLive();
+        for(TwillRunner.LiveInfo live : it){
+            System.out.println(live.getApplicationName());
+            Iterable<TwillController> itc = live.getControllers();
+            for(TwillController tc : itc){
+                tc.changeInstances("container0",4);
+            }
+        }
         for(ContainerConfiguration c : cc){
             countOfInnst = countOfInnst+c.getInstances();
         }

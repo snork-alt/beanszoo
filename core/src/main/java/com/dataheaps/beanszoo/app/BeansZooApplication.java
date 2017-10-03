@@ -9,8 +9,6 @@ import org.apache.twill.api.TwillPreparer;
  */
 public abstract class BeansZooApplication implements Application{
 
-    public TwillPreparer preparer;
-
     public abstract void start() throws BeansZooException;
 
     public abstract void stop() throws BeansZooException;
