@@ -15,19 +15,12 @@ import org.apache.hadoop.yarn.server.MiniYARNCluster;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fifo.FifoScheduler;
 import org.apache.twill.api.TwillController;
-import org.apache.twill.api.TwillRunResources;
 import org.apache.twill.api.TwillRunner;
 import org.junit.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.function.Consumer;
-
 /**
  * @author chandras
  */
@@ -91,8 +84,9 @@ public class YarnLifeCycleTest {
     @After
     public void tearDown() throws Exception {
         // We want the cluster to be able to shut down
-        zookeeperLocalCluster.stop();
-        yarnCluster.stop();
+        zookeeperLocalCluster.stop(true);
+        //yarnCluster.stop();
+        hdfsCluster.shutdown();
     }
 
     @Test
