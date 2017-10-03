@@ -14,6 +14,10 @@
     <artifactId>beanszoo-core</artifactId>
     <version>0.2.21</version>
 
+    <properties>
+        <hadoop.version>2.7.0</hadoop.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -118,37 +122,37 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-minicluster</artifactId>
-            <version>2.7.0</version>
+            <version>${hadoop.version}</version>
             <!--<scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>2.7.0</version>
+            <version>${hadoop.version}</version>
             <!--<scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
-            <version>2.7.0</version>
+            <version>${hadoop.version}</version>
             <!--<scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-api</artifactId>
-            <version>2.7.0</version>
+            <version>${hadoop.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-common</artifactId>
-            <version>2.7.0</version>
+            <version>${hadoop.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-client</artifactId>
-            <version>2.7.0</version>
+            <version>${hadoop.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

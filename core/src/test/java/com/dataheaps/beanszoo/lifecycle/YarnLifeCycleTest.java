@@ -71,12 +71,12 @@ public class YarnLifeCycleTest {
             .setPort(portZK)
             .setTempDir("embedded_zookeeper")
             .setZookeeperConnectionString("localhost:"+portZK)
-            .setMaxClientCnxns(60)
+            .setMaxClientCnxns(20)
             .setElectionPort(20001)
             .setQuorumPort(20002)
-            .setDeleteDataDirectoryOnClose(false)
+            .setDeleteDataDirectoryOnClose(true)
             .setServerId(1)
-            .setTickTime(2000)
+            .setTickTime(1000)
             .build();
         zookeeperLocalCluster.start();
     }

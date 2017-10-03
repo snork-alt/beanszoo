@@ -9,6 +9,9 @@
     <packaging>pom</packaging>
     <version>0.2.0</version>
 
+    <properties>
+        <hadoop.version>2.7.0</hadoop.version>
+    </properties>
     <modules>
         <module>core</module>
         <module>web</module>
