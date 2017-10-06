@@ -123,19 +123,19 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-minicluster</artifactId>
             <version>${hadoop.version}</version>
-            <!--<scope>test</scope>-->
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <version>${hadoop.version}</version>
-            <!--<scope>test</scope>-->
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
             <version>${hadoop.version}</version>
-            <!--<scope>test</scope>-->
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -159,6 +159,7 @@
             <groupId>com.github.sakserv</groupId>
             <artifactId>hadoop-mini-clusters-zookeeper</artifactId>
             <version>0.1.14</version>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.zookeeper</groupId>
