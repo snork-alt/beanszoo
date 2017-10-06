@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.dataheaps</groupId>
             <artifactId>beanszoo-core</artifactId>
-            <version>0.2.17</version>
+            <version>0.2.21</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>

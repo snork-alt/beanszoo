@@ -20,6 +20,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
         }
         catch (Exception e) {
             status = Status.Idle;
+            throw e;
         }
     }
 
@@ -36,6 +37,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
         }
         catch (Exception e) {
             status = Status.Running;
+            throw e;
         }
 
     }
