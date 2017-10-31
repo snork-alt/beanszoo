@@ -1,16 +1,26 @@
 package com.dataheaps.beanszoo.sd;
 
-import com.dataheaps.beanszoo.rpc.RpcServerAddress;
-import lombok.AllArgsConstructor;
-import org.apache.zookeeper.*;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.nustaq.serialization.FSTConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Paths;
-import java.util.*;
+import com.dataheaps.beanszoo.rpc.RpcServerAddress;
+
+import lombok.AllArgsConstructor;
 
 /**
  * Created by matteopelati on 25/10/15.
@@ -48,18 +58,18 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
         super(localAddr);
         this.connectionString = connectionString;
         this.zkTimeout = zkTimeout;
-        rootIdPath = Paths.get("/", basePath, IDS).toString();
-        rootTypesPath = Paths.get("/", basePath, TYPES).toString();
-        rootLocksPath = Paths.get("/", basePath, LOCKS).toString();
+        rootIdPath = StringUtils.join(basePath, "/", IDS);
+        rootTypesPath = StringUtils.join(basePath, "/", TYPES);
+        rootLocksPath = StringUtils.join(basePath, "/", LOCKS);
     }
 
     public ZookeeperServiceDirectory(RpcServerAddress localAddr, String connectionString, String basePath) {
         super(localAddr);
         this.connectionString = connectionString;
         this.zkTimeout = DEFAULT_ZK_TIMEOUT;
-        rootIdPath = Paths.get("/", basePath, IDS).toString();
-        rootTypesPath = Paths.get("/", basePath, TYPES).toString();
-        rootLocksPath = Paths.get("/", basePath, LOCKS).toString();
+        rootIdPath = StringUtils.join(basePath, "/", IDS);
+        rootTypesPath = StringUtils.join(basePath, "/", TYPES);
+        rootLocksPath = StringUtils.join(basePath, "/", LOCKS);
     }
 
     @Override
@@ -100,7 +110,7 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
     }
 
     String encodeKey(String root, String key, String id) {
-        return Paths.get(root, key + "@" + id + "@" + getLocalAddress().geAddressString()).toString();
+        return StringUtils.join(root, "/", key + "@" + id + "@" + getLocalAddress().geAddressString());
     }
 
     Key decodeKey(String key) {
@@ -116,7 +126,7 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
 
             List<String> children = zkClient.getChildren(rootIdPath, true);
             for (String key : children) {
-                String fullPath = Paths.get(rootIdPath, key).toString();
+                String fullPath = StringUtils.join(rootIdPath, "/", key);
                 logger.debug("Retrieving child: " + fullPath);
                 byte[] data = zkClient.getData(fullPath, true, null);
                 ServiceDescriptor desc = (ServiceDescriptor) fst.asObject(data);
@@ -137,7 +147,7 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
 
             List<String> children = zkClient.getChildren(rootTypesPath, true);
             for (String key : children) {
-                String fullPath = Paths.get(rootTypesPath, key).toString();
+                String fullPath = StringUtils.join(rootTypesPath, "/", key);
                 logger.debug("Retrieving child: " + fullPath);
                 byte[] data = zkClient.getData(fullPath, true, null);
                 ServiceDescriptor desc = (ServiceDescriptor) fst.asObject(data);
@@ -176,7 +186,7 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
         }
         else if (path.startsWith(rootLocksPath)) {
             try {
-                String relative = Paths.get(rootLocksPath).relativize(Paths.get(path)).toString();
+                String relative = path.substring(rootLocksPath.length() + 1);
                 unlock(relative);
             }
             catch (Exception e) {
@@ -280,14 +290,14 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
 
             try {
                 zkClient.create(
-                        Paths.get(rootLocksPath, id).toString(), new byte[0],
+                        StringUtils.join(rootLocksPath, "/", id), new byte[0],
                         ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL
                 );
-                zkClient.exists(Paths.get(rootLocksPath, id).toString(), true);
+                zkClient.exists(StringUtils.join(rootLocksPath, "/", id), true);
                 return true;
             } catch (KeeperException e) {
                 if (e.code().equals(KeeperException.Code.NODEEXISTS)) {
-                    Stat node = zkClient.exists(Paths.get(rootLocksPath, id).toString(), true);
+                    Stat node = zkClient.exists(StringUtils.join(rootLocksPath, "/", id), true);
                     if (node != null) return false;
                 }
                 throw e;
@@ -304,7 +314,7 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
         super.removeLock(id);
         try {
             zkClient.delete(
-                    Paths.get(rootLocksPath, id).toString(), -1
+                    StringUtils.join(rootLocksPath, "/", id), -1
             );
         } catch (KeeperException e) {
             if (!e.code().equals(KeeperException.Code.NONODE)) {
@@ -333,6 +343,8 @@ public class ZookeeperServiceDirectory extends AbstractServiceDirectory implemen
             case NodeDeleted:
                 handleNodeDeleted(e.getPath());
                 break;
+            default:
+            	break;
         }
     }
 }

@@ -29,5 +29,4 @@ public abstract class AbstractLifeCycleManager {
         Container c = new ContainerUtils().createContainer(containerConfig, roles, rpcFactory, sdFactory);
         return c;
     }
-
 }

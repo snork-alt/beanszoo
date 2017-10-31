@@ -11,7 +11,7 @@ import lombok.*;
 public class ZookeeperServiceDirectoryFactory implements ServiceDirectoryFactory {
 
     @Getter @Setter @NonNull String connectionString;
-    @Getter @Setter @NonNull int timeout;
+    @Getter @Setter @NonNull Integer timeout;
     @Getter @Setter @NonNull String basepath = "/beanszoo";
 
     @Override

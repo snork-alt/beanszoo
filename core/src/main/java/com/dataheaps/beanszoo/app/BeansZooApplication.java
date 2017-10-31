@@ -2,8 +2,6 @@ package com.dataheaps.beanszoo.app;
 
 import com.dataheaps.beanszoo.exceptions.BeansZooException;
 
-import org.apache.twill.api.TwillPreparer;
-
 /**
  * Created by cs186076 on 29/9/17.
  */

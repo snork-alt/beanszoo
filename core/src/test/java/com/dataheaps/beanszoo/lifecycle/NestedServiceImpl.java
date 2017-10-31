@@ -11,7 +11,7 @@ public class NestedServiceImpl extends AbstractLifeCycle implements NestedServic
 
     @Getter @Setter NestedService nested;
     @Getter @Setter String id;
-    @Getter @Setter Class klass;
+    @Getter @Setter Class<?> klass;
 
     @Override
     public String test() {

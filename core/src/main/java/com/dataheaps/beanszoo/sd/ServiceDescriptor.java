@@ -11,9 +11,11 @@ import java.io.Serializable;
 @RequiredArgsConstructor
 public class ServiceDescriptor implements Serializable {
 
-    @Getter final String address;
+	private static final long serialVersionUID = 2411525862002109453L;
+	
+	@Getter final String address;
     @Getter final String id;
-    @Getter final Class type;
+    @Getter final Class<?> type;
     @Getter final String name;
     @Getter final String path;
     @Getter final Object metadata;

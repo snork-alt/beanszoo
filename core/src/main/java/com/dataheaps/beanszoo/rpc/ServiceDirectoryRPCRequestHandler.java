@@ -20,11 +20,11 @@ public class ServiceDirectoryRPCRequestHandler implements RpcRequestHandler {
     @Override
     public byte[] handleRPCRequest(RPCRequestCodec codec, byte[] data, String objectPath, String method) throws Exception {
 
-        List args = (List) codec.deserialize(data);
+        List<?> args = (List<?>) codec.deserialize(data);
         Object target = sd.getService(objectPath);
         if (target == null)
             throw new RpcStatusException(RpcConstants.STATUS_SERVER_EXCEPTION, objectPath);
-        Class[] types = (Class[])((List)args.stream().map(t -> t.getClass()).collect(Collectors.toList())).toArray(new Class[0]);
+        Class<?>[] types = (Class[])((List<?>)args.stream().map(t -> t.getClass()).collect(Collectors.toList())).toArray(new Class[0]);
         Method m = target.getClass().getMethod(method, types);
         if (m == null)
             throw new IllegalArgumentException("No method " + method);

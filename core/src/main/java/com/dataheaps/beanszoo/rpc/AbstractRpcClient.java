@@ -64,7 +64,7 @@ public abstract class AbstractRpcClient<S> implements RpcClient {
     }
 
     @Override
-    public synchronized Object invoke(ServiceDescriptor d, String method, Class[] argTypes, Object[] args) throws Exception {
+    public synchronized Object invoke(ServiceDescriptor d, String method, Class<?>[] argTypes, Object[] args) throws Exception {
 
         long messageId = idGen.incrementAndGet();
         RpcSync sync = new RpcSync();

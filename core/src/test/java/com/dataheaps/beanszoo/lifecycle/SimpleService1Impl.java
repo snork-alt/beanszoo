@@ -32,4 +32,5 @@ public class SimpleService1Impl extends AbstractLifeCycle implements SimpleServi
     protected void doStop() throws Exception {
 
     }
+
 }
