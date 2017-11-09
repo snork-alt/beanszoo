@@ -21,6 +21,7 @@ public class SingleProcessLifeCycleManager extends AbstractLifeCycleManager {
         for (ContainerConfiguration c : config.getContainers()) {
             if (c.getId().equals(containerId)) {
                 container = createContainer(c, config.getRoles(), config.getRpcFactory(), config.getSdFactory());
+                runCommands(container, c);
                 return;
             }
         }

@@ -19,8 +19,15 @@ public abstract class AbstractLifeCycleManager {
     public abstract void start() throws Exception;
     public abstract void stop() throws Exception;
 
+    protected void runCommands(Container c, ContainerConfiguration cf) throws Exception {
+        for (Command cmd: cf.getCommands()) {
+            cmd.run(c.services);
+        }
+    }
+
     Container createContainer(ContainerConfiguration containerConfig, RoleConfiguration[] roles, RpcFactory rpcFactory, ServiceDirectoryFactory sdFactory) throws Exception {
-        return  new ContainerUtils().createContainer(containerConfig, roles, rpcFactory, sdFactory);
+        Container c = new ContainerUtils().createContainer(containerConfig, roles, rpcFactory, sdFactory);
+        return c;
     }
 
 }

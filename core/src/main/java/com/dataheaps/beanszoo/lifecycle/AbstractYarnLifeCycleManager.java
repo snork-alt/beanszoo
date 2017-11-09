@@ -18,12 +18,19 @@ public abstract class AbstractYarnLifeCycleManager extends AbstractTwillRunnable
     final Configuration config;
     String containerId;
 
+    protected void runCommands(Container c, ContainerConfiguration cf) throws Exception {
+        for (Command cmd: cf.getCommands()) {
+            cmd.run(c.services);
+        }
+    }
+
     @Override
     public void run() {
         for (ContainerConfiguration c : config.getContainers()) {
             if (c.getId().equals(containerId)) {
                 try {
-                    new ContainerUtils().createContainer(c, config.getRoles(), config.getRpcFactory(), config.getSdFactory());
+                    Container container = new ContainerUtils().createContainer(c, config.getRoles(), config.getRpcFactory(), config.getSdFactory());
+                    runCommands(container, c);
                 } catch (Exception e) {
                     throw new BeansZooException(e.getLocalizedMessage());
                 }
