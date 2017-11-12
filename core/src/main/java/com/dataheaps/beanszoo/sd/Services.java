@@ -1,16 +1,21 @@
 package com.dataheaps.beanszoo.sd;
 
-import com.dataheaps.beanszoo.rpc.RpcClient;
-import com.dataheaps.beanszoo.sd.policies.*;
-import com.sun.javafx.collections.ImmutableObservableList;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.dataheaps.beanszoo.rpc.RpcClient;
+import com.dataheaps.beanszoo.sd.policies.InvocationPolicy;
+import com.dataheaps.beanszoo.sd.policies.LocalRandomPolicy;
+import com.dataheaps.beanszoo.sd.policies.Policy;
+import com.dataheaps.beanszoo.sd.policies.SingleInstancePolicy;
 
 /**
  * Created by matteopelati on 26/10/15.
@@ -52,7 +57,8 @@ public class Services {
      * @param klass The interface implemented by teh requested service
      * @return Reference to the service implementation, which can me local or remote
      */
-    public <T> T getService(String id, Class<T> klass) {
+    @SuppressWarnings("unchecked")
+	public <T> T getService(String id, Class<T> klass) {
 
         ServiceDescriptor d = services.getService(id);
         if (d == null) return null;
@@ -70,7 +76,7 @@ public class Services {
 
     }
 
-    Object getServiceInstance(Class klass, String name, List<ServiceDescriptor> d, RpcClient client, ServiceDirectory services)  {
+    Object getServiceInstance(Class<?> klass, String name, List<ServiceDescriptor> d, RpcClient client, ServiceDirectory services)  {
 
         return Proxy.newProxyInstance(
                 this.getClass().getClassLoader(), new Class<?>[]{klass},
@@ -104,7 +110,8 @@ public class Services {
      * @param klass The interface implemented by teh requested service
      * @return Reference to the service implementation, which can me local or remote
      */
-    public <T> T getService(Class<T> klass) {
+    @SuppressWarnings("unchecked")
+	public <T> T getService(Class<T> klass) {
 
         Set<ServiceDescriptor> d = services.getServicesByType(klass, null);
         if (d.isEmpty()) return null;
@@ -119,7 +126,8 @@ public class Services {
      * @param name The name of the service. Services can be named using the Name annotation
      * @return Reference to the service implementation, which can me local or remote
      */
-    public <T> T getService(Class<T> klass, String name) {
+    @SuppressWarnings("unchecked")
+	public <T> T getService(Class<T> klass, String name) {
 
         Set<ServiceDescriptor> d = services.getServicesByType(klass, name);
         if (d.isEmpty()) return null;
@@ -129,7 +137,7 @@ public class Services {
 
     public Set<Object> getServicesMetadata(Class<?> klass, String name) {
         Set<ServiceDescriptor> d = services.getServicesByType(klass, name);
-        if (d.isEmpty()) return Collections.EMPTY_SET;
+        if (d.isEmpty()) return Collections.emptySet();
         return d.stream().flatMap(
                 e -> (e.getMetadata() == null) ? Stream.empty() : Stream.of(e.getMetadata())).collect(Collectors.toSet()
         );
@@ -139,7 +147,8 @@ public class Services {
         return getServicesMetadata(klass, null);
     }
 
-    public <T> T getServiceMetadata(String id, Class<T> metadataType) {
+    @SuppressWarnings("unchecked")
+	public <T> T getServiceMetadata(String id, Class<T> metadataType) {
 
         ServiceDescriptor d = services.getService(id);
         if (d == null) return null;

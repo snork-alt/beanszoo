@@ -1,8 +1,5 @@
 package com.dataheaps.beanszoo.lifecycle;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by admin on 19/2/17.
  */

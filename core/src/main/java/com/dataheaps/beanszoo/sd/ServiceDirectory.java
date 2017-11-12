@@ -14,7 +14,7 @@ public interface ServiceDirectory {
 
 
     ServiceDescriptor getService(String id);
-    Set<ServiceDescriptor> getServicesByType(Class type, String name);
+    Set<ServiceDescriptor> getServicesByType(Class<?> type, String name);
     Object getLocalInstance(ServiceDescriptor d);
     void putService(Object service) throws Exception;
     void putService(String id, Object service) throws Exception;

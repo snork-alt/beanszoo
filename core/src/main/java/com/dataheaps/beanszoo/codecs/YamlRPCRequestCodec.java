@@ -10,8 +10,6 @@ import java.io.UnsupportedEncodingException;
  */
 public class YamlRPCRequestCodec implements RPCRequestCodec {
 
-
-
     @Override
     public Object deserialize(byte[] o) {
 
@@ -32,7 +30,6 @@ public class YamlRPCRequestCodec implements RPCRequestCodec {
 
         Yaml yaml = new Yaml();
         yaml.setBeanAccess(BeanAccess.FIELD);
-
 
         try {
             String r = yaml.dump(o);

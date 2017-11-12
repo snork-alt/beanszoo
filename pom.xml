@@ -7,7 +7,7 @@
     <groupId>com.dataheaps</groupId>
     <artifactId>beanszoo</artifactId>
     <packaging>pom</packaging>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 
     <properties>
         <hadoop.version>2.7.0</hadoop.version>

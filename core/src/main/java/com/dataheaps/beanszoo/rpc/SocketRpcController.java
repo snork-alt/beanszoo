@@ -1,7 +1,5 @@
 package com.dataheaps.beanszoo.rpc;
 
-import lombok.RequiredArgsConstructor;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;

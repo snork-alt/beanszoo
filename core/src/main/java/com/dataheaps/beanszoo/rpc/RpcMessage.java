@@ -1,10 +1,9 @@
 package com.dataheaps.beanszoo.rpc;
 
-import com.dataheaps.beanszoo.sd.ServiceDescriptor;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.List;
+
+import com.dataheaps.beanszoo.sd.ServiceDescriptor;
 
 /**
  * Created by admin on 24/1/17.
@@ -12,7 +11,9 @@ import java.util.List;
 
 public class RpcMessage implements Serializable {
 
-    public enum Type {
+	private static final long serialVersionUID = 610414194024218274L;
+
+	public enum Type {
         Request, Response
     }
 
@@ -20,13 +21,13 @@ public class RpcMessage implements Serializable {
     long id;
     ServiceDescriptor service;
     String method;
-    Class[] argTypes;
+    Class<?>[] argTypes;
     List<Object> args;
     Object returnValue;
     int status;
     String statusText;
 
-    public RpcMessage(long id, ServiceDescriptor service, String method, Class[] argTypes, List<Object> args) {
+    public RpcMessage(long id, ServiceDescriptor service, String method, Class<?>[] argTypes, List<Object> args) {
         this.type = Type.Request;
         this.id = id;
         this.service = service;

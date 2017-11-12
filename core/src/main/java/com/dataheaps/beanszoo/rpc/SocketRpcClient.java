@@ -1,14 +1,13 @@
 package com.dataheaps.beanszoo.rpc;
 
-import com.dataheaps.beanszoo.codecs.RPCRequestCodec;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import com.dataheaps.beanszoo.codecs.RPCRequestCodec;
 
 /**
  * Created by admin on 29/5/16.

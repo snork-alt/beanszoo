@@ -1,8 +1,10 @@
 package com.dataheaps.beanszoo.rpc;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +43,7 @@ public class StreamUtils {
 
         ByteArrayInputStream is = new ByteArrayInputStream(data);
         DataInputStream dataIn = new DataInputStream(is);
-        List result = new ArrayList<>();
+        List<Object> result = new ArrayList<>();
 
         for (Object c : types) {
             if (c.equals(String.class))

@@ -2,7 +2,6 @@ package com.dataheaps.beanszoo.utils;
 
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by admin on 29/5/16.
@@ -22,7 +21,7 @@ public class Multimap<K, V> {
 
     }
 
-    public synchronized void clear() {
+    synchronized public void clear() {
         root.clear();
     }
 
@@ -40,7 +39,7 @@ public class Multimap<K, V> {
 
     synchronized public Set<V> get(K key) {
         Set<V> res = root.get(key);
-        if (res == null) return Collections.EMPTY_SET;
+        if (res == null) return Collections.emptySet();
         return res;
     }
 
@@ -57,4 +56,3 @@ public class Multimap<K, V> {
     }
 
 }
-

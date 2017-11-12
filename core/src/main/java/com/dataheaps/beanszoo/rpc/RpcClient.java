@@ -7,5 +7,5 @@ import com.dataheaps.beanszoo.sd.ServiceDescriptor;
  */
 public interface RpcClient {
 
-    Object invoke(ServiceDescriptor d, String method, Class[] argTypes, Object[] args) throws Exception;
+    Object invoke(ServiceDescriptor d, String method, Class<?>[] argTypes, Object[] args) throws Exception;
 }

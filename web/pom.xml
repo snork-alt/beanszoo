@@ -7,11 +7,11 @@
     <parent>
         <artifactId>beanszoo</artifactId>
         <groupId>com.dataheaps</groupId>
-        <version>0.2.0</version>
+        <version>0.2.1</version>
     </parent>
 
     <artifactId>beanszoo-web</artifactId>
-    <version>0.2.17</version>
+    <version>0.2.18</version>
 
 
     <dependencies>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.dataheaps</groupId>
             <artifactId>beanszoo-core</artifactId>
-            <version>0.2.22</version>
+            <version>0.2.23</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.dataheaps</groupId>
             <artifactId>aspectrest</artifactId>
-            <version>0.1.11</version>
+            <version>0.1.12</version>
         </dependency>
     </dependencies>
 

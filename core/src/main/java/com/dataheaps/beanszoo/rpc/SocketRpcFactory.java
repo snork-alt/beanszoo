@@ -1,11 +1,13 @@
 package com.dataheaps.beanszoo.rpc;
 
-import com.dataheaps.beanszoo.codecs.FstRPCRequestCodec;
 import com.dataheaps.beanszoo.codecs.RPCRequestCodec;
 import com.dataheaps.beanszoo.sd.ServiceDirectory;
-import lombok.*;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * Created by admin on 9/2/17.
@@ -15,9 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SocketRpcFactory implements RpcFactory<SocketRpcServerAddress> {
 
     @Getter @Setter @NonNull RPCRequestCodec codec;
-    @Getter @Setter @NonNull int timeout = 10000;
-    @Getter @Setter @NonNull int lowestPort = -1;
-    @Getter @Setter @NonNull int highestPort = -1;
+    @Getter @Setter @NonNull Integer timeout = 10000;
+    @Getter @Setter @NonNull Integer lowestPort = -1;
+    @Getter @Setter @NonNull Integer highestPort = -1;
 
     int currPort = -1;
 

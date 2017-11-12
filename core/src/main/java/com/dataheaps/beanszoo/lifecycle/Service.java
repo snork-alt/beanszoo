@@ -1,7 +1,5 @@
 package com.dataheaps.beanszoo.lifecycle;
 
-import com.dataheaps.beanszoo.sd.policies.RandomPartitioner;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

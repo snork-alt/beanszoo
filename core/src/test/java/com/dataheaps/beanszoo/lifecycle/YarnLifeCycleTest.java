@@ -20,6 +20,7 @@ import org.junit.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Properties;
 /**
  * @author chandras
@@ -82,7 +83,7 @@ public class YarnLifeCycleTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown1() throws Exception {
         // We want the cluster to be able to shut down
         zookeeperLocalCluster.stop(true);
         //yarnCluster.stop();
@@ -95,8 +96,9 @@ public class YarnLifeCycleTest {
         Properties p = new Properties();
         p.put("zkQuorum", zookeeperLocalCluster.getZookeeperConnectionString());
         reader.props = p;
-        String path = new File("src/test/java/com/dataheaps/beanszoo/lifecycle/conf.yaml").getAbsolutePath();
-        Configuration conf = reader.load(new FileInputStream(path), p);
+        InputStream in = this.getClass().getResourceAsStream("/conf.yaml");
+//        String path = new File("src/test/java/com/dataheaps/beanszoo/lifecycle/conf.yaml").getAbsolutePath();
+        Configuration conf = reader.load(in, p);
         ybza = new YarnBeansZooApplication((YarnConfiguration) hdfsConf, conf, zookeeperLocalCluster.getZookeeperConnectionString(), YarnLifeCycleTest.class.getName());
         ybza.start();
         ContainerConfiguration [] cc = ybza.getConfig().getContainers();
@@ -114,4 +116,5 @@ public class YarnLifeCycleTest {
         }
         Assert.assertTrue("waiting for instances",countOfInnst==2);
     }
+
 }

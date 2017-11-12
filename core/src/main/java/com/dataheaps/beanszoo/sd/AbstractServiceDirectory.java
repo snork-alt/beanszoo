@@ -1,13 +1,19 @@
 package com.dataheaps.beanszoo.sd;
 
-import com.dataheaps.beanszoo.rpc.RpcServerAddress;
-import com.dataheaps.beanszoo.sd.policies.InvocationPolicy;
-import com.dataheaps.beanszoo.sd.policies.LocalRandomPolicy;
-import com.dataheaps.beanszoo.utils.Multimap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.commons.lang3.ClassUtils;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import com.dataheaps.beanszoo.rpc.RpcServerAddress;
+import com.dataheaps.beanszoo.sd.policies.LocalRandomPolicy;
+import com.dataheaps.beanszoo.utils.Multimap;
 
 /**
  * Created by matteopelati on 25/10/15.
@@ -16,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractServiceDirectory implements ServiceDirectory {
 
-    static final Class DefaultPolicy = LocalRandomPolicy.class;
+    static final Class<?> DefaultPolicy = LocalRandomPolicy.class;
 
     private final RpcServerAddress localAddress;
 
@@ -144,7 +150,7 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
         Name names = service.getClass().getAnnotation(Name.class);
         Object metadata = (service instanceof HasMetadata) ? ((HasMetadata) service).getMetadata() : null;
 
-        Set<Class> allClasses = new HashSet<>();
+        Set<Class<?>> allClasses = new HashSet<>();
         allClasses.addAll(ClassUtils.getAllInterfaces(service.getClass()));
 
         allClasses.forEach(
@@ -184,13 +190,13 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
     }
 
     @Override
-    public synchronized Set<ServiceDescriptor> getServicesByType(Class type, String name) {
+    public synchronized Set<ServiceDescriptor> getServicesByType(Class<?> type, String name) {
 
         if (!running)
             throw new IllegalStateException("Service Directory is not running");
 
         Set<ServiceDescriptor> ret = allRunningInterfaces.get(type.getCanonicalName() + ((name == null) ? "" : ("!" + name)));
-        if (ret == null || ret.size() == 0) return Collections.EMPTY_SET;
+        if (ret == null || ret.size() == 0) return Collections.emptySet();
         return ret;
     }
 

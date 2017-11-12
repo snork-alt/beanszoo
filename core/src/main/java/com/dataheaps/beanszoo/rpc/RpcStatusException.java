@@ -7,7 +7,9 @@ import lombok.Getter;
  */
 public class RpcStatusException extends Exception {
 
-    @Getter final int statusCode;
+	private static final long serialVersionUID = -4178362319146863063L;
+
+	@Getter final int statusCode;
 
     public RpcStatusException(int statusCode, String message) {
         super(message);
