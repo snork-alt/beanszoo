@@ -117,7 +117,7 @@ public class JettyServer extends AbstractLifeCycle {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
 
-        AspectRestServlet restServlet = new AspectRestServlet(serializer, services);
+        AspectRestServlet restServlet = new AspectRestServlet(false, serializer, services);
         restServlet.setModules(restHandlers);
         restServlet.setAuthenticators(restAuthenticators);
         restServlet.setHeaders(headers);
