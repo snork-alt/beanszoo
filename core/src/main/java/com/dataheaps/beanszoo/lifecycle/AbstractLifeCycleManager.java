@@ -7,6 +7,7 @@ import com.dataheaps.beanszoo.utils.ContainerUtils;
 import lombok.AllArgsConstructor;
 
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by admin on 8/2/17.
@@ -17,12 +18,12 @@ import java.util.Map;
 public abstract class AbstractLifeCycleManager {
 
     final Configuration config;
-    final Map<String,String> props;
+    final Properties props;
 
     public abstract void start() throws Exception;
     public abstract void stop() throws Exception;
 
-    protected void runCommands(Container c, ContainerConfiguration cf, Map<String,String> properties) throws Exception {
+    protected void runCommands(Container c, ContainerConfiguration cf, Properties properties) throws Exception {
         for (Command cmd: cf.getCommands()) {
             cmd.run(c.services, properties);
         }

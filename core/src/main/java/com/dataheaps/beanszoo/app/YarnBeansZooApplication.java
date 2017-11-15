@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
+import java.util.Properties;
 
 /**
  *
@@ -45,9 +46,9 @@ public class YarnBeansZooApplication extends AbstractYarnBeansZooApplication imp
         for(ContainerConfiguration cc : config.getContainers()){
             try {
                 if(rs == null){
-                    rs = mr.add(cc.getId(), new YarnLifeCycleManager(cc.getId(), config, zkAddress, new HashMap<>())).noLocalFiles();
+                    rs = mr.add(cc.getId(), new YarnLifeCycleManager(cc.getId(), config, zkAddress, new Properties())).noLocalFiles();
                 } else {
-                    rs.add(cc.getId(), new YarnLifeCycleManager(cc.getId(), config, zkAddress, new HashMap<>())).noLocalFiles();
+                    rs.add(cc.getId(), new YarnLifeCycleManager(cc.getId(), config, zkAddress, new Properties())).noLocalFiles();
                 }
             } catch (Exception e) {
                 throw new BeansZooException(e.getCause());

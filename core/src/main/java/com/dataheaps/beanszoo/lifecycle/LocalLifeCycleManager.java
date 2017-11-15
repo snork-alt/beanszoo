@@ -3,6 +3,7 @@ package com.dataheaps.beanszoo.lifecycle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by admin on 8/2/17.
@@ -11,7 +12,7 @@ public class LocalLifeCycleManager extends AbstractLifeCycleManager {
 
     List<Container> containers = new ArrayList<>();
 
-    public LocalLifeCycleManager(Configuration config, Map<String,String> props) {
+    public LocalLifeCycleManager(Configuration config, Properties props) {
         super(config, props);
     }
 

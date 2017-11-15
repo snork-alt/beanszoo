@@ -51,7 +51,7 @@ public class LifeCycleTest {
 
             conf.setContainers(new ContainerConfiguration[] {containerConfig0, containerConfig1});
 
-            LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf, new HashMap<>());
+            LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf, new Properties());
             lcm.start();
 
             List<String> res = new ArrayList<>();
@@ -82,7 +82,7 @@ public class LifeCycleTest {
 //            String path = new File("src/test/java/com/dataheaps/beanszoo/lifecycle/conf.yaml").getAbsolutePath();
             Configuration conf = reader.load(in, p);
 
-            LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf, new HashMap<>());
+            LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf, new Properties());
             lcm.start();
 
             List<String> res = new ArrayList<>();
@@ -111,7 +111,7 @@ public class LifeCycleTest {
 //            String path = new File("src/test/java/com/dataheaps/beanszoo/lifecycle/conf_nested.yaml").getAbsolutePath();
             Configuration conf = reader.load(in, p);
 
-            LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf, new HashMap<>());
+            LocalLifeCycleManager lcm = new LocalLifeCycleManager(conf, new Properties());
             lcm.start();
 
             Container c = lcm.containers.get(0);
