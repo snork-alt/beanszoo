@@ -7,6 +7,8 @@ import org.apache.twill.api.AbstractTwillRunnable;
 
 import lombok.AllArgsConstructor;
 
+import java.util.Map;
+
 /**
  * Created by cs186076 on 29/9/17.
  * @author number9code
@@ -16,11 +18,12 @@ import lombok.AllArgsConstructor;
 public abstract class AbstractYarnLifeCycleManager extends AbstractTwillRunnable{
 
     final Configuration config;
+    final Map<String,String> props;
     String containerId;
 
-    protected void runCommands(Container c, ContainerConfiguration cf) throws Exception {
+    protected void runCommands(Container c, ContainerConfiguration cf, Map<String,String> props) throws Exception {
         for (Command cmd: cf.getCommands()) {
-            cmd.run(c.services);
+            cmd.run(c.services, props);
         }
     }
 
@@ -30,7 +33,7 @@ public abstract class AbstractYarnLifeCycleManager extends AbstractTwillRunnable
             if (c.getId().equals(containerId)) {
                 try {
                     Container container = new ContainerUtils().createContainer(c, config.getRoles(), config.getRpcFactory(), config.getSdFactory());
-                    runCommands(container, c);
+                    runCommands(container, c, props);
                 } catch (Exception e) {
                     throw new BeansZooException(e.getLocalizedMessage());
                 }
