@@ -7,7 +7,31 @@
     <groupId>com.dataheaps</groupId>
     <artifactId>beanszoo</artifactId>
     <packaging>pom</packaging>
-    <version>0.2.1</version>
+    <version>0.2.25-SNAPSHOT</version>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com/pelatimtt/beanszoo.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/pelatimtt/beanszoo.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/pelatimtt/beanszoo</url>
+    </scm>
+
+    <name>BeansZoo</name>
+    <description>Distributed Java micro-service framework</description>
+    <url>https://github.com/pelatimtt/aspectrest</url>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>pelatimtt</id>
+            <name>Matteo Pelati</name>
+            <email>matteo.pelati@gmail.com</email>
+        </developer>
+    </developers>
 
     <properties>
         <hadoop.version>2.7.0</hadoop.version>
@@ -36,5 +60,58 @@
             </plugins>
         </pluginManagement>
     </build>
+
+
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>2.5.3</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.4</version>
+                        <configuration>
+                            <passphrase>${gpg.passphrase}</passphrase>
+                            <keyname>${gpg.keyname}</keyname>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus snapshot repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Sonatype Nexus release repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
 </project>

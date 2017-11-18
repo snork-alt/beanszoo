@@ -7,11 +7,11 @@
     <parent>
         <artifactId>beanszoo</artifactId>
         <groupId>com.dataheaps</groupId>
-        <version>0.2.1</version>
+        <version>0.2.25-SNAPSHOT</version>
     </parent>
 
     <artifactId>beanszoo-web</artifactId>
-    <version>0.2.18</version>
+    <version>0.2.25-SNAPSHOT</version>
 
 
     <dependencies>

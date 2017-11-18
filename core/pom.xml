@@ -8,11 +8,11 @@
     <parent>
         <artifactId>beanszoo</artifactId>
         <groupId>com.dataheaps</groupId>
-        <version>0.2.1</version>
+        <version>0.2.25-SNAPSHOT</version>
     </parent>
 
     <artifactId>beanszoo-core</artifactId>
-    <version>0.2.25</version>
+    <version>0.2.25-SNAPSHOT</version>
 
     <properties>
         <hadoop.version>2.7.0</hadoop.version>
