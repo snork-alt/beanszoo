@@ -6,6 +6,7 @@
         <artifactId>beanszoo</artifactId>
         <groupId>com.dataheaps</groupId>
         <version>0.2.24-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>beanszoo-web</artifactId>
