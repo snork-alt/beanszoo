@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>beanszoo-web</artifactId>
-    <version>0.2.24-SNAPSHOT</version>
+    <version>0.2.25-SNAPSHOT</version>
 
 
     <dependencies>
