@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -20,6 +21,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -55,6 +57,18 @@ public class JettyServer extends AbstractLifeCycle {
         String[] proxies = new String[0];
     }
 
+    @Data @NoArgsConstructor
+    public static class StaticContentSettings {
+        @Getter @Setter String localBasePath = null;
+        @Getter @Setter String defaultPage = "index.html";
+        @Getter @Setter String path = "/";
+    }
+
+    @Data @NoArgsConstructor
+    public static class RestSettings {
+        @Getter @Setter String path = "/api";
+    }
+
     static class MethodMessageInfo {
         String command;
         Map<String, Integer> fields = new HashMap<>();
@@ -64,19 +78,21 @@ public class JettyServer extends AbstractLifeCycle {
 
     static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
 
-    @Getter @Setter int port = 8090;
+    @Getter @Setter int port = 8080;
 
     @Getter @Setter SslSettings ssl = null;
     @Getter @Setter CorsSettings cors = null;
     @Getter @Setter WsSettings websockets = null;
+    @Getter @Setter StaticContentSettings content = null;
+    @Getter @Setter RestSettings rest = null;
     @Getter @Setter Serializer serializer = new GensonSerializer();
 
     @Getter @Setter Map<String, RestHandler> restHandlers = new HashMap<>();
     @Getter @Setter Map<String, AuthModule> restAuthenticators = new HashMap<>();
     @Getter @Setter Map<String, String> headers = new HashMap<>();
 
-    Server server;
-    Services services;
+    protected Server server;
+    protected Services services;
 
 
     Server createServer() throws Exception {
@@ -114,22 +130,42 @@ public class JettyServer extends AbstractLifeCycle {
             ));
         }
 
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/");
+        if (rest != null) {
 
-        AspectRestServlet restServlet = new AspectRestServlet(false, serializer, services);
-        restServlet.setModules(restHandlers);
-        restServlet.setAuthenticators(restAuthenticators);
-        restServlet.setHeaders(headers);
-        context.addServlet(new ServletHolder(restServlet), "/");
+            ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            context.setContextPath(rest.getPath());
+            handlers.addHandler(context);
+
+            AspectRestServlet restServlet = new AspectRestServlet(false, serializer, services);
+            restServlet.setModules(restHandlers);
+            restServlet.setAuthenticators(restAuthenticators);
+            restServlet.setHeaders(headers);
+            context.addServlet(new ServletHolder(restServlet), "/");
+        }
 
         if (websockets != null) {
+
+            ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            context.setContextPath(websockets.getPath());
+            handlers.addHandler(context);
+
             WebSocketNotifier notifierServlet = new WebSocketNotifier(serializer);
-            context.addServlet(new ServletHolder(notifierServlet), websockets.getPath());
+            context.addServlet(new ServletHolder(notifierServlet), "/");
             registerWebProxy(websockets.proxies, notifierServlet);
         }
 
-        handlers.addHandler(context);
+        if (content != null) {
+
+            ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            context.setContextPath(content.getPath());
+            handlers.addHandler(context);
+
+            StaticContentServlet staticServlet = new StaticContentServlet(
+                    content.localBasePath == null ? null : StringUtils.join(content.localBasePath.split("/"), File.separator),
+                    content.defaultPage
+            );
+            context.addServlet(new ServletHolder(staticServlet), "/");
+        }
 
         server.setHandler(handlers);
         return server;
