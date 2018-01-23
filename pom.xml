@@ -5,7 +5,7 @@
     <groupId>com.dataheaps</groupId>
     <artifactId>beanszoo</artifactId>
     <packaging>pom</packaging>
-    <version>0.2.24-SNAPSHOT</version>
+    <version>0.2.25</version>
 
     <scm>
         <connection>scm:git:ssh://git@github.com/pelatimtt/beanszoo.git</connection>
@@ -59,7 +59,7 @@
 
     <profiles>
         <profile>
-            <id>releaser</id>
+            <id>release</id>
             <build>
                 <plugins>
                     <plugin>

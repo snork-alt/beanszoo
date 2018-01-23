@@ -5,12 +5,12 @@
     <parent>
         <artifactId>beanszoo</artifactId>
         <groupId>com.dataheaps</groupId>
-        <version>0.2.24-SNAPSHOT</version>
+        <version>0.2.25</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>beanszoo-web</artifactId>
-    <version>0.2.25-SNAPSHOT</version>
+    <version>0.2.25</version>
 
 
     <dependencies>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.dataheaps</groupId>
             <artifactId>beanszoo-core</artifactId>
-            <version>0.2.24-SNAPSHOT</version>
+            <version>0.2.25</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
