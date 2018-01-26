@@ -6,6 +6,7 @@ import com.dataheaps.aspectrest.annotations.Path;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
@@ -19,7 +20,7 @@ import static org.junit.Assert.*;
  */
 public class StaticContentServletTest {
 
-    @Test
+    @Test @Ignore
     public void testRestApiServer() throws Exception {
 
 
