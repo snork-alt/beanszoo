@@ -32,6 +32,39 @@ public class ServicesTest {
         }
     }
 
+    @Name({"test3", "test4"})
+    public static class SampleServiceImpl2 implements SampleService {
+
+        int ctr = 0;
+
+        @Override
+        public int test() {
+            ctr++;
+            return ctr;
+        }
+    }
+
+    public static class SampleNamedServiceImpl1 implements SampleService, Named {
+
+        String name;
+        int ctr = 0;
+
+        public SampleNamedServiceImpl1(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public int test() {
+            ctr++;
+            return ctr;
+        }
+
+        @Override
+        public String[] getNames() {
+            return new String[] {name};
+        }
+    }
+
     @Test
     public void basicLocalInstanceInvocation() throws Exception {
 
@@ -77,6 +110,96 @@ public class ServicesTest {
             Services clientServices = new Services(rpcClient, clientSd);
             SampleService remote = clientServices.getService("id1", SampleService.class);
             assert(remote.test() == 2);
+
+            serverSd.stop();
+            clientSd.stop();
+            rpcServer.stop();
+        }
+
+    }
+
+    @Test
+    public void basicInstanceInvocationNamed() throws Exception {
+
+        try(TestingServer server = new TestingServer(true)) {
+            SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090);
+            ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
+                    serverAddress, server.getConnectString(), "/bztest"
+            );
+            serverSd.start();
+            serverSd.putService("id1", new SampleNamedServiceImpl1("test0"));
+            serverSd.putService("id2", new SampleNamedServiceImpl1("test1"));
+
+            RpcServer rpcServer = new SocketRpcServer(serverAddress, new FstRPCRequestCodec(), serverSd);
+            rpcServer.start();
+
+            RpcClient localRpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
+            Services serverServices = new Services(localRpcClient, serverSd);
+            SampleService local = serverServices.getService(SampleService.class, "test0");
+            assert (local.test() == 1);
+            SampleService local2 = serverServices.getService(SampleService.class, "test1");
+            assert (local2.test() == 1);
+
+            serverServices.getServicesMetadata(SampleService.class);
+
+            RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
+            SocketRpcServerAddress clientAddress = new SocketRpcServerAddress("localhost", 9091);
+            ZookeeperServiceDirectory clientSd = new ZookeeperServiceDirectory(
+                    clientAddress, server.getConnectString(), "/bztest"
+            );
+            clientSd.start();
+            Thread.sleep(1000);
+
+            Services clientServices = new Services(rpcClient, clientSd);
+            SampleService remote = clientServices.getService(SampleService.class, "test0");
+            assert(remote.test() == 2);
+            SampleService remote2 = clientServices.getService(SampleService.class, "test1");
+            assert(remote2.test() == 2);
+
+            clientServices.getServicesMetadata(SampleService.class);
+
+            serverSd.stop();
+            clientSd.stop();
+            rpcServer.stop();
+        }
+
+    }
+
+    @Test
+    public void basicInstanceInvocationNamed2() throws Exception {
+
+        try(TestingServer server = new TestingServer(true)) {
+            SocketRpcServerAddress serverAddress = new SocketRpcServerAddress("localhost", 9090);
+            ZookeeperServiceDirectory serverSd = new ZookeeperServiceDirectory(
+                    serverAddress, server.getConnectString(), "/bztest"
+            );
+            serverSd.start();
+            serverSd.putService("id1", new SampleServiceImpl1());
+            serverSd.putService("id2", new SampleServiceImpl2());
+
+            RpcServer rpcServer = new SocketRpcServer(serverAddress, new FstRPCRequestCodec(), serverSd);
+            rpcServer.start();
+
+            RpcClient localRpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
+            Services serverServices = new Services(localRpcClient, serverSd);
+            SampleService local = serverServices.getService(SampleService.class, "test");
+            assert (local.test() == 1);
+            SampleService local2 = serverServices.getService(SampleService.class, "test4");
+            assert (local2.test() == 1);
+
+            RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
+            SocketRpcServerAddress clientAddress = new SocketRpcServerAddress("localhost", 9091);
+            ZookeeperServiceDirectory clientSd = new ZookeeperServiceDirectory(
+                    clientAddress, server.getConnectString(), "/bztest"
+            );
+            clientSd.start();
+            Thread.sleep(1000);
+
+            Services clientServices = new Services(rpcClient, clientSd);
+            SampleService remote = clientServices.getService(SampleService.class, "test");
+            assert(remote.test() == 2);
+            SampleService remote2 = clientServices.getService(SampleService.class, "test4");
+            assert(remote2.test() == 2);
 
             serverSd.stop();
             clientSd.stop();

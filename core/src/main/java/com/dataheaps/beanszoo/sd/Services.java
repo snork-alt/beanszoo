@@ -131,7 +131,7 @@ public class Services {
 
         Set<ServiceDescriptor> d = services.getServicesByType(klass, name);
         if (d.isEmpty()) return null;
-        return (T) getServiceInstance(klass, null, new ArrayList<>(d), rpcClient, services);
+        return (T) getServiceInstance(klass, name, new ArrayList<>(d), rpcClient, services);
 
     }
 

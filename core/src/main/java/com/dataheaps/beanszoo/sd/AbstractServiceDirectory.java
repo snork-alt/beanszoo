@@ -147,7 +147,13 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
     Map<String, ServiceDescriptor> getInterfaceLocalServiceDescriptors(Object service, String id) {
 
         Map<String, ServiceDescriptor> serviceDescriptors = new HashMap<>();
-        Name names = service.getClass().getAnnotation(Name.class);
+
+        Name namesAnn = service.getClass().getAnnotation(Name.class);
+        final String[] names =
+                (service instanceof Named)
+                    ? ((Named) service).getNames()
+                    : (namesAnn != null ? namesAnn.value() : null);
+
         Object metadata = (service instanceof HasMetadata) ? ((HasMetadata) service).getMetadata() : null;
 
         Set<Class<?>> allClasses = new HashSet<>();
@@ -162,7 +168,7 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
                             )
                     );
                     if (names != null) {
-                        for (String name: names.value()) {
+                        for (String name: names) {
                             serviceDescriptors.put(
                                     c.getCanonicalName() + "!" + name,
                                     new ServiceDescriptor(
