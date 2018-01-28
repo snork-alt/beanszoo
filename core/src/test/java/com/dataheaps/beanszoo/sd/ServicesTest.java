@@ -140,7 +140,8 @@ public class ServicesTest {
             SampleService local2 = serverServices.getService(SampleService.class, "test1");
             assert (local2.test() == 1);
 
-            serverServices.getServicesMetadata(SampleService.class);
+            Set<String> s = serverServices.getServiceNames(SampleService.class);
+            assert s.size() == 2;
 
             RpcClient rpcClient = new SocketRpcClient(new FstRPCRequestCodec(), 5000);
             SocketRpcServerAddress clientAddress = new SocketRpcServerAddress("localhost", 9091);
@@ -156,7 +157,8 @@ public class ServicesTest {
             SampleService remote2 = clientServices.getService(SampleService.class, "test1");
             assert(remote2.test() == 2);
 
-            clientServices.getServicesMetadata(SampleService.class);
+            Set<String> s2 = serverServices.getServiceNames(SampleService.class);
+            assert s2.size() == 2;
 
             serverSd.stop();
             clientSd.stop();

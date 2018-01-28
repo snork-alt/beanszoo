@@ -21,6 +21,14 @@ public class Multimap<K, V> {
 
     }
 
+    synchronized public Set<Map.Entry<K, Set<V>>> entrySet() {
+        return new HashSet<>(root.entrySet());
+    }
+
+    synchronized public Set<K> keySet() {
+        return new HashSet<>(root.keySet());
+    }
+
     synchronized public void clear() {
         root.clear();
     }
@@ -37,6 +45,13 @@ public class Multimap<K, V> {
         }
     }
 
+    synchronized public void removeAll(Multimap<K, V> other) {
+        for (Map.Entry<K, Set<V>> e : other.root.entrySet()) {
+            for (V v: e.getValue())
+                remove(e.getKey(), v);
+        }
+    }
+
     synchronized public Set<V> get(K key) {
         Set<V> res = root.get(key);
         if (res == null) return Collections.emptySet();
@@ -49,6 +64,15 @@ public class Multimap<K, V> {
         values.remove(value);
         if (values.isEmpty())
             root.remove(key);
+    }
+
+    synchronized public void putAll(Multimap<K,V> other) {
+
+        for (Map.Entry<K, Set<V>> e : other.root.entrySet()) {
+            for (V v: e.getValue())
+                put(e.getKey(), v);
+        }
+
     }
 
     synchronized public void removeAll(K key) {

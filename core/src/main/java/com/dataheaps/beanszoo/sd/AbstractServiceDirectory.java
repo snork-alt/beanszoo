@@ -185,6 +185,20 @@ public abstract class AbstractServiceDirectory implements ServiceDirectory {
     }
 
 
+    public synchronized Set<String> getServiceNames(Class klass) {
+
+        Set<String> r = new HashSet<>();
+        for (String id: allRunningInterfaces.keySet()) {
+            String[] tokens = id.split("!");
+            if (tokens.length == 1)
+                continue;
+            if (!tokens[0].equals(klass.getCanonicalName()))
+                continue;
+            r.add(tokens[1]);
+        }
+
+        return r;
+    }
 
     @Override
     public synchronized ServiceDescriptor getService(String id) {

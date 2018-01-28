@@ -156,4 +156,8 @@ public class Services {
 
     }
 
+    public Set<String> getServiceNames(Class klass) {
+        return services.getServiceNames(klass);
+    }
+
 }
