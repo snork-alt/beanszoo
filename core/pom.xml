@@ -6,12 +6,12 @@
     <parent>
         <artifactId>beanszoo</artifactId>
         <groupId>com.dataheaps</groupId>
-        <version>0.2.27-SNAPSHOT</version>
+        <version>0.2.27</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>beanszoo-core</artifactId>
-    <version>0.2.27-SNAPSHOT</version>
+    <version>0.2.27</version>
 
     <properties>
         <hadoop.version>2.7.0</hadoop.version>
