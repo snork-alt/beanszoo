@@ -30,6 +30,7 @@ public class Services {
 
     final RpcClient rpcClient;
     final ServiceDirectory services;
+    final ServiceInvocationListener listener;
 
     /**
      * Initialises a new service manager that can be used for service registration and querying
@@ -40,6 +41,19 @@ public class Services {
     public Services(RpcClient rpcClient, ServiceDirectory services) {
         this.rpcClient = rpcClient;
         this.services = services;
+        this.listener = null;
+    }
+
+    /**
+     * Initialises a new service manager that can be used for service registration and querying
+     *
+     * @param rpcClient An implementation of an RPC client that will be used when invoking remote services
+     * @param services A service directory implementation which keeps track of the registered services (local and remote)
+     */
+    public Services(RpcClient rpcClient, ServiceDirectory services, ServiceInvocationListener listener) {
+        this.rpcClient = rpcClient;
+        this.services = services;
+        this.listener = listener;
     }
 
     /**
@@ -71,7 +85,19 @@ public class Services {
 
         return (T) Proxy.newProxyInstance(
                 this.getClass().getClassLoader(), new Class[]{klass},
-                (proxy, method, args) -> singleInstancePolicy.invoke(proxy, method, args, klass, null, sdl, rpcClient, services)
+                (proxy, method, args) -> {
+                    try {
+                        Object ret = singleInstancePolicy.invoke(proxy, method, args, klass, null, sdl, rpcClient, services);
+                        if (listener != null)
+                            listener.onSuccess(method, args, ret);
+                        return ret;
+                    }
+                    catch (Exception e) {
+                        if (listener != null)
+                            listener.onError(method, args, e);
+                        throw e;
+                    }
+                }
         );
 
     }
@@ -97,7 +123,17 @@ public class Services {
                             }
                         });
 
-                        return policy.invoke(proxy, method, args, klass, name, d, client, services);
+                        try {
+                            Object ret = policy.invoke(proxy, method, args, klass, name, d, client, services);
+                            if (listener != null)
+                                listener.onSuccess(method, args, ret);
+                            return ret;
+                        }
+                        catch (Exception e) {
+                            if (listener != null)
+                                listener.onError(method, args, e);
+                            throw e;
+                        }
 
                     }
                 }

@@ -7,7 +7,9 @@ import com.dataheaps.beanszoo.sd.policies.RoundRobinPolicy;
 import org.apache.curator.test.TestingServer;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 
@@ -65,6 +67,14 @@ public class ServicesTest {
         }
     }
 
+    public static class SampleServiceImplFail implements SampleService {
+
+        @Override
+        public int test() {
+            throw new IllegalArgumentException();
+        }
+    }
+
     @Test
     public void basicLocalInstanceInvocation() throws Exception {
 
@@ -77,6 +87,67 @@ public class ServicesTest {
 
         SampleService remote = services.getService("id1", SampleService.class);
         assert(remote.test() == 1);
+
+    }
+
+    @Test
+    public void basicLocalInstanceInvocationWithListener() throws Exception {
+
+        AtomicBoolean listened = new AtomicBoolean(false);
+        LocalServiceDirectory serverSd = new LocalServiceDirectory();
+        serverSd.start();
+        serverSd.putService("id1", new SampleServiceImpl1());
+
+        RpcClient localRpcClient = new LocalRpcClient();
+        Services services = new Services(localRpcClient, serverSd, new ServiceInvocationListener() {
+            @Override
+            public void onSuccess(Method m, Object[] args, Object ret) {
+                listened.set(true);
+            }
+
+            @Override
+            public void onError(Method m, Object[] args, Exception e) {
+
+            }
+        });
+
+        SampleService remote = services.getService(SampleService.class);
+        assert(remote.test() == 1);
+        assert (listened.get());
+
+    }
+
+    @Test
+    public void basicLocalInstanceInvocationWithListenerFail() throws Exception {
+
+        Exception ex = null;
+        AtomicBoolean listened = new AtomicBoolean(false);
+        LocalServiceDirectory serverSd = new LocalServiceDirectory();
+        serverSd.start();
+        serverSd.putService("id1", new SampleServiceImplFail());
+
+        RpcClient localRpcClient = new LocalRpcClient();
+        Services services = new Services(localRpcClient, serverSd, new ServiceInvocationListener() {
+            @Override
+            public void onSuccess(Method m, Object[] args, Object ret) {
+
+            }
+
+            @Override
+            public void onError(Method m, Object[] args, Exception e) {
+                listened.set(true);
+            }
+        });
+
+        try {
+            SampleService remote = services.getService(SampleService.class);
+            remote.test();
+        }
+        catch (Exception e) {
+           ex = e;
+        }
+        assert (ex != null);
+        assert (listened.get());
 
     }
 
