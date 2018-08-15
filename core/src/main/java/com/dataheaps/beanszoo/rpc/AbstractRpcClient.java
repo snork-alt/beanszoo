@@ -5,6 +5,7 @@ import com.dataheaps.beanszoo.sd.ServiceDescriptor;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;

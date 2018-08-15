@@ -7,6 +7,7 @@ import com.dataheaps.beanszoo.sd.policies.RoundRobinPolicy;
 import org.apache.curator.test.TestingServer;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,6 +23,10 @@ public class ServicesTest {
         int test();
     }
 
+    public interface SampleServiceWithException {
+        void test() throws FileNotFoundException;
+    }
+
     @Name({"test", "test2"})
     public static class SampleServiceImpl1 implements SampleService {
 
@@ -31,6 +36,14 @@ public class ServicesTest {
         public int test() {
             ctr++;
             return ctr;
+        }
+    }
+
+    public static class SampleServiceImplWithException implements SampleServiceWithException {
+
+        @Override
+        public void test() throws FileNotFoundException {
+            throw new FileNotFoundException("file");
         }
     }
 
@@ -87,6 +100,21 @@ public class ServicesTest {
 
         SampleService remote = services.getService("id1", SampleService.class);
         assert(remote.test() == 1);
+
+    }
+
+    @Test(expected = FileNotFoundException.class)
+    public void unwrapException() throws Exception {
+
+        LocalServiceDirectory serverSd = new LocalServiceDirectory();
+        serverSd.start();
+        serverSd.putService("id1", new SampleServiceImplWithException());
+
+        RpcClient localRpcClient = new LocalRpcClient();
+        Services services = new Services(localRpcClient, serverSd);
+
+        SampleServiceWithException remote = services.getService(SampleServiceWithException.class);
+        remote.test();
 
     }
 

@@ -1,8 +1,6 @@
 package com.dataheaps.beanszoo.sd;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -92,6 +90,11 @@ public class Services {
                             listener.onSuccess(method, args, ret);
                         return ret;
                     }
+                    catch (InvocationTargetException e) {
+                        if (listener != null)
+                            listener.onError(method, args, e);
+                        throw e.getCause();
+                    }
                     catch (Exception e) {
                         if (listener != null)
                             listener.onError(method, args, e);
@@ -128,6 +131,11 @@ public class Services {
                             if (listener != null)
                                 listener.onSuccess(method, args, ret);
                             return ret;
+                        }
+                        catch (InvocationTargetException e) {
+                            if (listener != null)
+                                listener.onError(method, args, e);
+                            throw e.getTargetException();
                         }
                         catch (Exception e) {
                             if (listener != null)
