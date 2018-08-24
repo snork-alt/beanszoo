@@ -40,7 +40,7 @@ public class AutoSocketRpcServerAddress extends SocketRpcServerAddress {
     }
 
     static String getLocalHostname() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostName();
+        return InetAddress.getLoopbackAddress().getHostName();
     }
 
     static boolean isPortAvailable(int port) {

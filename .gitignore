@@ -71,3 +71,8 @@ buildNumber.properties
 .mvn/timing.properties
 
 .DS_Store
+
+# Eclipse files
+.project
+.classpath
+.settings
