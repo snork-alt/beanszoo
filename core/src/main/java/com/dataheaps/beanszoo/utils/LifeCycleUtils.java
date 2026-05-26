@@ -7,7 +7,6 @@ import com.dataheaps.beanszoo.lifecycle.Service;
 import com.dataheaps.beanszoo.sd.Services;
 
 import org.apache.commons.beanutils.BeanMap;
-import org.codehaus.plexus.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -71,7 +70,10 @@ public class LifeCycleUtils {
 
     public void injectServices(Object o, Services services) throws IllegalAccessException, IllegalArgumentException {
 
-        List<Field> fields = ReflectionUtils.getFieldsIncludingSuperclasses(o.getClass());
+        List<Field> fields = new ArrayList<>();
+        for (Class<?> c = o.getClass(); c != null && c != Object.class; c = c.getSuperclass()) {
+            fields.addAll(Arrays.asList(c.getDeclaredFields()));
+        }
         for (Field f : fields) {
             if (f.getAnnotation(Service.class) != null) {
                 Object service = null;

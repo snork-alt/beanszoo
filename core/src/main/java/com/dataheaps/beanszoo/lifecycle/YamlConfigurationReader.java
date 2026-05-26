@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.beanutils.ConvertUtils;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.AbstractConstruct;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -96,10 +97,17 @@ public class YamlConfigurationReader implements ConfigurationReader {
         }
 
         public YamlConstructor(Properties props) {
+            super(buildLoaderOptions());
             this.props = props;
             this.yamlConstructors.put(new Tag("!property"), new EnvConstruct());
             this.yamlConstructors.put(new Tag("!instance"), new InstanceConstruct());
             this.yamlConstructors.put(new Tag("!class"), new ClassConstruct());
+        }
+
+        private static LoaderOptions buildLoaderOptions() {
+            LoaderOptions opts = new LoaderOptions();
+            opts.setTagInspector(tag -> true);
+            return opts;
         }
     }
 
