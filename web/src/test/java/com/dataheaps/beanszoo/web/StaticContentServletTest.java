@@ -6,21 +6,21 @@ import com.dataheaps.aspectrest.annotations.Path;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by matteopelati on 11/27/17.
  */
 public class StaticContentServletTest {
 
-    @Test @Ignore
+    @Test @Disabled
     public void testRestApiServer() throws Exception {
 
 
