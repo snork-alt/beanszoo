@@ -5,14 +5,14 @@ import com.dataheaps.beanszoo.rpc.*;
 import com.dataheaps.beanszoo.sd.policies.InvocationPolicy;
 import com.dataheaps.beanszoo.sd.policies.RoundRobinPolicy;
 import org.apache.curator.test.TestingServer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by admin on 24/1/17.
@@ -103,18 +103,20 @@ public class ServicesTest {
 
     }
 
-    @Test(expected = FileNotFoundException.class)
+    @Test
     public void unwrapException() throws Exception {
 
-        LocalServiceDirectory serverSd = new LocalServiceDirectory();
-        serverSd.start();
-        serverSd.putService("id1", new SampleServiceImplWithException());
+        assertThrows(FileNotFoundException.class, () -> {
+            LocalServiceDirectory serverSd = new LocalServiceDirectory();
+            serverSd.start();
+            serverSd.putService("id1", new SampleServiceImplWithException());
 
-        RpcClient localRpcClient = new LocalRpcClient();
-        Services services = new Services(localRpcClient, serverSd);
+            RpcClient localRpcClient = new LocalRpcClient();
+            Services services = new Services(localRpcClient, serverSd);
 
-        SampleServiceWithException remote = services.getService(SampleServiceWithException.class);
-        remote.test();
+            SampleServiceWithException remote = services.getService(SampleServiceWithException.class);
+            remote.test();
+        });
 
     }
 
