@@ -1,6 +1,7 @@
 package com.dataheaps.beanszoo.lifecycle;
 
 import com.dataheaps.beanszoo.app.YarnBeansZooApplication;
+import com.dataheaps.beanszoo.miniyarn.MiniYARNCluster270;
 import com.dataheaps.beanszoo.utils.CommonUtils;
 import com.github.sakserv.minicluster.impl.ZookeeperLocalCluster;
 import com.google.common.base.Optional;
@@ -29,7 +30,7 @@ public class YarnLifeCycleTest {
 
     static String CLUSTER_1 = "HDFSExtractor";
     private MiniDFSCluster hdfsCluster = null;
-    private MiniYARNCluster yarnCluster = null;
+    private MiniYARNCluster270 yarnCluster = null;
     private org.apache.hadoop.conf.Configuration hdfsConf;
     private YarnConfiguration yarnConf;
     private String testName = null;
@@ -60,11 +61,12 @@ public class YarnLifeCycleTest {
         String hdfsURI = "hdfs://localhost:" + hdfsCluster.getNameNodePort() + "/";
         fs = FileSystem.get(hdfsConf);
         yarnConf = new YarnConfiguration();
-        hdfsConf.setInt(YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB, 64);
-        hdfsConf.setClass(YarnConfiguration.RM_SCHEDULER,
+        yarnConf.set(YarnConfiguration.RM_ADDRESS, "localhost");
+        yarnConf.setInt(YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB, 64);
+        yarnConf.setClass(YarnConfiguration.RM_SCHEDULER,
                           FifoScheduler.class, ResourceScheduler.class);
-        yarnCluster = new MiniYARNCluster(YarnLifeCycleTest.class.getName(), noOfNodeManagers, numLocalDirs, numLogDirs);
-        yarnCluster.init(hdfsCluster.getConfiguration(0));
+        yarnCluster = new MiniYARNCluster270(YarnLifeCycleTest.class.getName(), noOfNodeManagers, numLocalDirs, numLogDirs);
+        yarnCluster.init(yarnConf);
         yarnCluster.start();
         hdfsConf = yarnCluster.getConfig();
         int portZK = CommonUtils.getAvailablePort(Optional.<Integer>absent());
