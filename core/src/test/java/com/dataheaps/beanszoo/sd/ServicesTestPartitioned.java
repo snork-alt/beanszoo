@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.curator.test.TestingServer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.dataheaps.beanszoo.codecs.FstRPCRequestCodec;
 import com.dataheaps.beanszoo.rpc.RpcClient;
