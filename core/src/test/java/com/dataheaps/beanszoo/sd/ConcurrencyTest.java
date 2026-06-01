@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.curator.test.TestingServer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.dataheaps.beanszoo.codecs.FstRPCRequestCodec;
 import com.dataheaps.beanszoo.rpc.RpcClient;
