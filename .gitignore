@@ -71,3 +71,6 @@ buildNumber.properties
 .mvn/timing.properties
 
 .DS_Store
+
+# graphify knowledge graph (kaydence tooling)
+graphify-out/
