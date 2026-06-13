@@ -16,7 +16,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fifo.FifoScheduler;
 import org.apache.twill.api.TwillController;
 import org.apache.twill.api.TwillRunner;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,7 +38,7 @@ public class YarnLifeCycleTest {
     ZookeeperLocalCluster zookeeperLocalCluster = null;
     YarnBeansZooApplication ybza = null;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUPNew(){
         //System.setProperty("HADOOP_CONF_DIR","/usr/local/Cellar/hadoop/2.8.0/libexec/etc/hadoop");
         //System.setProperty("HADOOP_COMMON_HOME","/usr/local/Cellar/hadoop/2.8.0/libexec");
@@ -46,7 +46,7 @@ public class YarnLifeCycleTest {
         //System.setProperty("HADOOP_YARN_HOME","/usr/local/Cellar/hadoop/2.8.0/libexec");
     }
 
-    @Before
+    @BeforeEach
     public void setUP1() throws Exception {
         final int noOfNodeManagers = 1;
         final int numLocalDirs = 1;
@@ -82,7 +82,7 @@ public class YarnLifeCycleTest {
         zookeeperLocalCluster.start();
     }
 
-    @After
+    @AfterEach
     public void tearDown1() throws Exception {
         // We want the cluster to be able to shut down
         zookeeperLocalCluster.stop(true);
@@ -114,7 +114,7 @@ public class YarnLifeCycleTest {
         for(ContainerConfiguration c : cc){
             countOfInnst = countOfInnst+c.getInstances();
         }
-        Assert.assertTrue("waiting for instances",countOfInnst==2);
+        Assertions.assertTrue(countOfInnst==2, "waiting for instances");
     }
 
 }
