@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.curator.test.TestingServer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.dataheaps.beanszoo.rpc.SocketRpcServerAddress;
 import com.google.common.collect.ImmutableSet;
